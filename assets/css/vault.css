@@ -1,0 +1,1663 @@
+/* ============================================================
+   Self-hosted type.
+
+   Google Fonts never reliably loaded here — a blocked request, a CSP,
+   or a sandboxed preview and the whole page fell back to Times. These
+   files now ship with the site, so there is nothing left to fail.
+
+   The Japanese cuts are subset to the 85 characters the site actually
+   uses, which takes Yuji Syuku from 3.5MB to 32kB. Latin and Japanese
+   are split by unicode-range, so an English-speaking visitor never
+   downloads a kanji they will not see.
+
+   It also removes Google as a data processor from the privacy policy,
+   which matters for section 8 of the brief.
+   ============================================================ */
+@font-face {
+  font-family: "Mincho"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url("/assets/fonts/mincho-400.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Mincho"; font-style: normal; font-weight: 800; font-display: swap;
+  src: url("/assets/fonts/mincho-800.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Mincho"; font-style: normal; font-weight: 800; font-display: swap;
+  src: url("/assets/fonts/mincho-jp-800.woff2") format("woff2");
+  unicode-range: U+3000-30FF, U+3400-4DBF, U+4E00-9FFF, U+FF00-FFEF;
+}
+@font-face {
+  font-family: "Gothic"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url("/assets/fonts/gothic-400.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Gothic"; font-style: normal; font-weight: 500; font-display: swap;
+  src: url("/assets/fonts/gothic-500.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Gothic"; font-style: normal; font-weight: 700; font-display: swap;
+  src: url("/assets/fonts/gothic-700.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Gothic"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url("/assets/fonts/gothic-jp-400.woff2") format("woff2");
+  unicode-range: U+3000-30FF, U+3400-4DBF, U+4E00-9FFF, U+FF00-FFEF;
+}
+@font-face {
+  font-family: "Brush"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url("/assets/fonts/brush-jp-400.woff2") format("woff2");
+}
+
+/* ============================================================
+   S&A TCG VAULT
+   A catalogue printed on lacquer. Warm sumi ground, lit plates,
+   vermillion seal. Shippori Mincho / Zen Kaku Gothic New.
+
+   The governing idea: the page is dark, the photographs are not.
+   Every product sits on a lit plate inset into the ground, the
+   way an object sits under gallery lighting. Dark page, without
+   the product disappearing into it.
+   ============================================================ */
+
+:root {
+  /* Ground — urushi lacquer, warm and brown-toned. Not a blue-black
+     tech slab; #16130f has red in it, which is why vermillion sits
+     on it as a pigment rather than glowing off it. */
+  --ground:   #0a0a0c;
+  --ground-2: #131316;
+  --ground-3: #1b1b1f;
+  --rule:     #26262b;
+  --rule-2:   #3a3a42;
+
+  --ink:   #f0eee9;
+  --ink-2: #a3a3ab;
+  --ink-3: #86868f;
+
+  /* The lit plate. Photographs live here and nowhere else. */
+  --plate:   #eae7e0;
+  --plate-2: #d6d1c7;
+
+  --shu:   #e8402a;
+  --shu-d: #a8290f;
+  --ai:    #16161a;
+
+  /* Heavy Mincho is how Japanese anime title cards and Pokémon set
+     logos are actually set: high stroke contrast, tight tracking,
+     enormous weight. Brush face carries the Japanese accents only. */
+  --mincho: "Mincho", "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  --gothic: "Gothic", "Hiragino Sans", "Yu Gothic", ui-sans-serif, system-ui, sans-serif;
+  --brush:  "Brush", "Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
+
+  --t-xs:  0.75rem;
+  --t-sm:  0.875rem;
+  --t-md:  1.333rem;
+  --t-lg:  1.777rem;
+  --t-xl:  2.369rem;
+  --t-2xl: clamp(2.1rem, 4vw, 3.157rem);
+  --t-3xl: clamp(2.7rem, 6.6vw, 4.9rem);
+
+  --gut: clamp(1.25rem, 5vw, 4rem);
+  --max: 1180px;
+  --hair: 1px solid var(--rule);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+}
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--gothic);
+  font-size: 1rem;
+  line-height: 1.72;
+  -webkit-font-smoothing: antialiased;
+}
+
+img, svg { max-width: 100%; height: auto; display: block; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--shu); outline-offset: 3px; }
+
+.wrap { width: 100%; max-width: var(--max); margin-inline: auto; padding-inline: var(--gut); }
+.skip { position: absolute; left: -9999px; background: var(--ink); color: var(--ground); padding: .75rem 1.25rem; z-index: 999; }
+.skip:focus { left: 0; }
+
+/* ---------- Type ---------- */
+h1, h2 { font-family: var(--mincho); font-weight: 800; margin: 0 0 .5em; line-height: 1.06; letter-spacing: -0.03em; text-wrap: balance; }
+h3 { font-family: var(--mincho); font-weight: 800; margin: 0 0 .5em; line-height: 1.2; letter-spacing: -0.02em; }
+h1 { font-size: var(--t-2xl); }
+h2 { font-size: var(--t-xl); }
+h3 { font-size: var(--t-md); line-height: 1.3; }
+p { margin: 0 0 1.15rem; max-width: 68ch; }
+.lede { font-family: var(--gothic); font-weight: 400; font-size: 1.16rem; line-height: 1.65; color: #c4c4cc; max-width: 42ch; }
+.muted { color: var(--ink-2); }
+.jp { font-family: var(--brush); font-feature-settings: "palt" 1; }
+
+.meta { font-family: var(--gothic); font-size: var(--t-xs); line-height: 1.5; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.ref { letter-spacing: .06em; }
+
+/* ---------- The hanko ---------- */
+.hanko {
+  display: inline-grid; place-items: center;
+  width: 74px; height: 74px; flex: 0 0 74px;
+  background: var(--shu); color: #fff;
+  font-family: var(--mincho); font-size: 1.45rem; line-height: 1;
+  writing-mode: vertical-rl; padding: .35rem; border-radius: 3px;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.55), inset 0 0 0 3px var(--shu);
+}
+.hanko--sm { width: 34px; height: 34px; flex-basis: 34px; font-size: .72rem; box-shadow: inset 0 0 0 1px rgba(255,255,255,.6), inset 0 0 0 2px var(--shu); }
+.hanko--stamp { animation: stamp .5s cubic-bezier(.2,1.4,.4,1) .35s both; }
+@keyframes stamp {
+  from { opacity: 0; transform: scale(1.7) rotate(-8deg); }
+  to   { opacity: 1; transform: scale(1) rotate(-3deg); }
+}
+
+/* ---------- Masthead ---------- */
+.masthead { border-bottom: 1px solid var(--rule-2); background: rgba(22,19,15,.94); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 60; }
+.masthead__in { display: flex; align-items: center; gap: 1.5rem; min-height: 74px; }
+
+.brand { display: flex; align-items: baseline; gap: .6rem; text-decoration: none; flex: 0 0 auto; }
+.brand b { font-family: var(--mincho); font-weight: 500; font-size: 1.32rem; letter-spacing: -.01em; }
+.brand span { font-size: .68rem; color: var(--ink-3); letter-spacing: .06em; }
+
+/* Live readout — real data, pulled from the same endpoint the
+   stock counts use. Present because it is useful, not as chrome. */
+.readout { display: flex; align-items: center; gap: .5rem; font-size: var(--t-xs); color: var(--ink-3); font-variant-numeric: tabular-nums; margin-inline-start: 1.5rem; }
+.readout__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--shu); flex: 0 0 6px; }
+.readout b { color: var(--ink-2); font-weight: 500; }
+@media (max-width: 1080px) { .readout { display: none; } }
+
+.nav { display: flex; gap: 1.4rem; margin-inline-start: auto; align-items: center; }
+.nav a { text-decoration: none; font-size: var(--t-sm); color: var(--ink-2); padding-block: .3rem; border-bottom: 1px solid transparent; }
+.nav a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+.nav a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--shu); }
+
+.cartbtn { display: inline-flex; align-items: baseline; gap: .4rem; text-decoration: none; font-size: var(--t-sm); color: var(--ink); border-bottom: 1px solid var(--rule-2); padding-bottom: .2rem; }
+.cartbtn:hover { border-bottom-color: var(--ink); }
+.cartbtn__n { font-variant-numeric: tabular-nums; }
+.cartbtn__n[data-empty="false"] { color: var(--shu); font-weight: 700; }
+
+.burger { display: none; background: none; border: 0; color: var(--ink); padding: .5rem; cursor: pointer; }
+@media (max-width: 900px) {
+  .burger { display: block; margin-inline-start: auto; order: 3; z-index: 92; position: relative; }
+  .cartbtn { order: 2; }
+  /* Full-page overlay nav — slides in from the right over the whole screen.
+     z-index above the masthead (60) so it covers the header too. */
+  .nav {
+    order: 4; position: fixed; inset: 0; z-index: 90;
+    flex-direction: column; align-items: stretch; gap: 0; margin: 0;
+    background: var(--ground);
+    padding: calc(74px + env(safe-area-inset-top, 0px)) var(--gut) calc(2rem + env(safe-area-inset-bottom, 0px));
+    transform: translateX(100%); transition: transform .35s var(--ease);
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    display: flex;
+  }
+  .nav[data-open="true"] { transform: none; }
+  .nav a { padding: 1.1rem 0; border-bottom: var(--hair); font-size: 1.15rem; color: var(--ink); min-height: 56px; display: flex; align-items: center; }
+  .nav a:last-of-type { border-bottom: 0; }
+}
+
+/* ---------- Lit plate + loupe ------------------------------
+   The plate is the only light surface on the page. The loupe
+   is a real inspection tool: hold over a photograph and it
+   magnifies, because "verify the seal yourself" is the whole
+   proposition and a static image cannot support it. */
+.plate {
+  background: var(--plate);
+  position: relative;
+  box-shadow: 0 0 0 1px var(--rule-2), 0 24px 60px -34px #000;
+  overflow: hidden;
+}
+.plate img { width: 100%; display: block; }
+
+.loupe {
+  position: absolute; width: 190px; height: 190px; border-radius: 50%;
+  pointer-events: none; opacity: 0; transform: scale(.85);
+  transition: opacity .18s, transform .18s;
+  background-repeat: no-repeat; background-color: var(--plate);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.35), 0 0 0 6px rgba(211,58,38,.85), 0 18px 40px -12px rgba(0,0,0,.7);
+  z-index: 3;
+}
+.plate[data-loupe="on"] .loupe { opacity: 1; transform: scale(1); }
+.plate__hint {
+  position: absolute; left: 0; bottom: 0; z-index: 2;
+  background: var(--ground); color: var(--ink-2);
+  font-size: var(--t-xs); padding: .4rem .7rem;
+  transition: opacity .18s;
+}
+.plate[data-loupe="on"] .plate__hint { opacity: 0; }
+@media (hover: none) { .plate__hint { display: none; } }
+
+/* ---------- Hero ---------- */
+.lot-hero { padding: clamp(2rem, 5vw, 4.5rem) 0 clamp(2.5rem, 5vw, 4rem); }
+.lot-hero__grid { display: grid; grid-template-columns: minmax(0, 1.06fr) minmax(0, .94fr); gap: clamp(2rem, 5vw, 4.5rem); align-items: center; }
+@media (max-width: 900px) { .lot-hero__grid { grid-template-columns: 1fr; } .lot-hero__plate { order: -1; } }
+.lot-hero__plate { position: relative; }
+.lot-hero__plate .plate img { aspect-ratio: 4/5; object-fit: cover; }
+.lot-hero__seal { position: absolute; right: -14px; bottom: 26px; z-index: 4; }
+
+.lot-hero h1 { font-size: var(--t-3xl); line-height: 1.03; margin-bottom: .35em; }
+.lot-hero h1 .jp { display: block; font-size: .32em; letter-spacing: .3em; color: var(--shu); margin-bottom: .55em; line-height: 1; }
+
+.docket { margin: 2.25rem 0 0; border-top: 1px solid var(--rule-2); max-width: 34rem; }
+.docket__row { display: grid; grid-template-columns: 8.5rem 1fr; gap: 1rem; padding: .8rem 0; border-bottom: var(--hair); }
+.docket__row dt { font-size: var(--t-xs); color: var(--ink-3); letter-spacing: .04em; padding-top: .2rem; }
+.docket__row dd { margin: 0; font-size: var(--t-sm); color: var(--ink-2); }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--gothic); font-size: var(--t-sm); font-weight: 500;
+  padding: .85rem 1.5rem; border: 1px solid var(--ink); background: var(--ink); color: var(--ground);
+  text-decoration: none; cursor: pointer; border-radius: 2px;
+  transition: background .18s, color .18s, border-color .18s;
+}
+.btn:hover { background: var(--shu); border-color: var(--shu); color: #fff; }
+.btn--quiet { background: transparent; color: var(--ink); border-color: var(--rule-2); }
+.btn--quiet:hover { background: transparent; border-color: var(--ink); color: var(--ink); }
+.btn--block { width: 100%; }
+.btn[disabled] { opacity: .35; cursor: not-allowed; background: var(--rule-2); border-color: var(--rule-2); color: var(--ink-2); }
+.actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.75rem; }
+
+/* ---------- Sections ---------- */
+.section { padding: clamp(2.75rem, 6vw, 5rem) 0; }
+.section--ruled { border-top: 1px solid var(--rule-2); }
+.section__head { margin-bottom: 2.5rem; max-width: 46rem; }
+.section__head h2 { margin-bottom: .4rem; }
+.section__head p { color: #b6b6bf; font-size: 1.05rem; line-height: 1.65; margin-bottom: 0; }
+
+/* ---------- Lot listings ---------- */
+.lots { border-top: 1px solid var(--rule-2); }
+.lot { display: grid; grid-template-columns: 15rem 1fr auto; gap: clamp(1.25rem, 3vw, 2.5rem); padding: 1.75rem 0; border-bottom: var(--hair); text-decoration: none; align-items: start; }
+.lot:hover .lot__title { color: var(--shu); }
+.lot__plate { background: var(--plate); box-shadow: 0 0 0 1px var(--rule-2); }
+.lot__plate img { width: 100%; aspect-ratio: 5/4; object-fit: cover; }
+.lot__title { font-family: var(--mincho); font-size: var(--t-md); margin: .1rem 0 .35rem; line-height: 1.2; transition: color .18s; }
+.lot__body p { font-size: .95rem; line-height: 1.6; color: #b0b0b9; margin: .55rem 0 0; max-width: 48ch; }
+.lot__side { text-align: right; min-width: 8rem; }
+.lot__price { font-family: var(--mincho); font-size: var(--t-md); display: block; font-variant-numeric: tabular-nums; }
+@media (max-width: 760px) {
+  .lot { grid-template-columns: 7rem 1fr; }
+  .lot__side { grid-column: 2; text-align: left; margin-top: .5rem; }
+}
+
+/* ---------- Catalogue grid ---------- */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: clamp(1.75rem, 3vw, 2.75rem) clamp(1.25rem, 2.5vw, 2rem); }
+.card { text-decoration: none; display: flex; flex-direction: column; }
+.card__plate { background: var(--plate); position: relative; overflow: hidden; box-shadow: 0 0 0 1px var(--rule-2); }
+.card__plate img { width: 100%; aspect-ratio: 5/4; object-fit: cover; transition: transform .6s cubic-bezier(.2,.8,.2,1); }
+.card:hover .card__plate img { transform: scale(1.03); }
+.card__seal { position: absolute; right: .55rem; bottom: .55rem; }
+.card__body { padding-top: .85rem; border-top: 1px solid var(--rule-2); margin-top: .85rem; display: flex; flex-direction: column; flex: 1; }
+.card__title { font-family: var(--mincho); font-size: 1.16rem; line-height: 1.2; margin: .3rem 0; transition: color .18s; }
+.card:hover .card__title { color: var(--shu); }
+.card__foot { margin-top: auto; padding-top: .8rem; display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; }
+.price { font-family: var(--mincho); font-size: var(--t-md); font-variant-numeric: tabular-nums; }
+.stock { font-size: var(--t-xs); color: var(--ink-2); text-align: right; }
+.stock[data-level="low"] { color: var(--shu); }
+.stock[data-level="none"] { color: var(--ink-3); }
+.state { color: var(--shu); }
+.state--none { color: var(--ink-3); }
+
+/* ---------- Chain of custody ---------- */
+.chain { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--rule-2); }
+@media (max-width: 820px) { .chain { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 460px) { .chain { grid-template-columns: 1fr; } }
+.chain__step { padding: 1.4rem 1.5rem 1.6rem 0; border-right: var(--hair); position: relative; }
+.chain__step:last-child { border-right: 0; }
+.chain__step::before { content: ""; position: absolute; top: -5px; left: 0; width: 9px; height: 9px; background: var(--shu); border-radius: 50%; }
+.chain__when { font-size: var(--t-xs); color: var(--ink-3); display: block; margin-bottom: .5rem; }
+.chain__step h3 { font-size: 1.06rem; margin-bottom: .35rem; }
+.chain__step p { font-size: var(--t-sm); color: var(--ink-2); margin: 0; }
+
+/* ---------- Index list ---------- */
+.index { border-top: 1px solid var(--rule-2); }
+.index a { display: flex; align-items: baseline; gap: 1.25rem; padding: 1.1rem 0; border-bottom: var(--hair); text-decoration: none; }
+.index a:hover .index__name { color: var(--shu); }
+.index__name { font-family: var(--mincho); font-size: var(--t-md); flex: 0 0 auto; transition: color .18s; }
+.index__desc { color: var(--ink-2); font-size: var(--t-sm); flex: 1; }
+.index__n { font-variant-numeric: tabular-nums; color: var(--ink-3); font-size: var(--t-sm); }
+@media (max-width: 640px) { .index a { flex-wrap: wrap; gap: .3rem 1rem; } .index__desc { flex-basis: 100%; } }
+
+/* ---------- Argument ---------- */
+.argument { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(2rem, 5vw, 4.5rem); align-items: start; }
+@media (max-width: 860px) { .argument { grid-template-columns: 1fr; } }
+.pull { font-family: var(--mincho); font-size: var(--t-lg); line-height: 1.35; border-left: 3px solid var(--shu); padding-left: 1.5rem; margin: 0 0 1.5rem; max-width: none; }
+.argument h3 { font-size: 1.1rem; margin: 1.75rem 0 .3rem; }
+.argument h3:first-of-type { margin-top: 0; }
+.argument p { font-size: .98rem; line-height: 1.68; color: #b0b0b9; }
+
+/* ---------- Trade ---------- */
+.trade { background: var(--ai); border-block: 1px solid var(--rule-2); color: #e4e4e8; padding: clamp(2.5rem, 6vw, 4.5rem) 0; }
+.trade h2, .trade h3, .trade dt { color: #fff; }
+.trade p, .trade dd { color: #a3a3ab; }
+.trade__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .9fr); gap: clamp(2rem, 5vw, 4rem); align-items: start; }
+@media (max-width: 900px) { .trade__grid { grid-template-columns: 1fr; } }
+.trade dl { margin: 1.75rem 0 0; }
+.trade dt { font-family: var(--mincho); font-size: 1.06rem; margin-top: 1.3rem; }
+.trade dd { margin: .2rem 0 0; font-size: var(--t-sm); }
+.trade .btn { background: var(--shu); border-color: var(--shu); color: #fff; }
+.trade .btn:hover { background: var(--shu); border-color: var(--shu); color: #fff; }
+.trade .field label { color: #83838c; }
+.trade .field input, .trade .field textarea, .trade .field select { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.22); color: #fff; }
+.trade .field input:focus, .trade .field textarea:focus, .trade .field select:focus { border-color: #fff; }
+.trade a { color: #fff; }
+.trade .note { border-left-color: var(--shu); }
+.trade .note p { color: #a3a3ab; }
+
+/* ---------- Product detail ---------- */
+.pdp { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: clamp(1.75rem, 4vw, 4rem); align-items: start; }
+@media (max-width: 900px) { .pdp { grid-template-columns: 1fr; } }
+.gallery__plate .plate img { aspect-ratio: 5/4; object-fit: cover; }
+.gallery__seal { position: absolute; right: 1rem; bottom: 1rem; z-index: 4; }
+.gallery__thumbs { display: flex; gap: .5rem; margin-top: .5rem; }
+.gallery__thumbs button { flex: 0 0 78px; aspect-ratio: 1; border: 1px solid var(--rule); padding: 0; background: var(--plate); cursor: pointer; }
+.gallery__thumbs button[aria-pressed="true"] { border-color: var(--shu); }
+.gallery__thumbs img { width: 100%; height: 100%; object-fit: cover; }
+
+.specs { width: 100%; border-collapse: collapse; font-size: var(--t-sm); border-top: 1px solid var(--rule-2); }
+.specs th, .specs td { text-align: left; padding: .65rem 0; border-bottom: var(--hair); vertical-align: top; }
+.specs th { color: var(--ink-3); font-weight: 400; width: 42%; padding-right: 1rem; }
+.specs td { font-variant-numeric: tabular-nums; color: var(--ink-2); }
+
+.qty { display: inline-flex; border: 1px solid var(--rule-2); border-radius: 2px; overflow: hidden; }
+.qty button { background: transparent; border: 0; color: var(--ink); width: 42px; font-size: 1.1rem; cursor: pointer; }
+.qty button:hover { background: var(--ground-3); }
+.qty input { width: 54px; text-align: center; background: transparent; border: 0; border-inline: 1px solid var(--rule-2); color: var(--ink); font-family: inherit; font-variant-numeric: tabular-nums; }
+
+/* ---------- Filters ---------- */
+.filters { display: flex; flex-wrap: wrap; gap: .75rem 1.25rem; align-items: center; padding: 1rem 0; border-top: 1px solid var(--rule-2); border-bottom: var(--hair); margin-bottom: 2rem; }
+.filters input[type="search"], .filters select { background: transparent; border: 0; border-bottom: 1px solid var(--rule-2); color: var(--ink); padding: .4rem .1rem; font-family: inherit; font-size: var(--t-sm); }
+.filters select option { background: var(--ground-2); color: var(--ink); }
+.filters input[type="search"] { flex: 1 1 200px; min-width: 0; }
+.filters input[type="search"]:focus, .filters select:focus { border-bottom-color: var(--shu); outline: none; }
+.filters kbd { border: 1px solid var(--rule-2); border-radius: 3px; padding: .1em .4em; font-size: .7rem; color: var(--ink-3); font-family: inherit; }
+.chip { background: none; border: 0; border-bottom: 1px solid transparent; color: var(--ink-2); font-family: inherit; font-size: var(--t-sm); padding: .3rem 0; cursor: pointer; }
+.chip:hover { color: var(--ink); }
+.chip[aria-pressed="true"] { color: var(--shu); border-bottom-color: var(--shu); }
+.count { font-size: var(--t-xs); color: var(--ink-3); margin-left: auto; font-variant-numeric: tabular-nums; }
+
+/* ---------- Cart ---------- */
+.line { display: grid; grid-template-columns: 88px 1fr auto; gap: 1.25rem; padding: 1.25rem 0; border-bottom: var(--hair); align-items: center; }
+.line:first-child { border-top: 1px solid var(--rule-2); }
+.line img { width: 88px; height: 88px; object-fit: cover; background: var(--plate); }
+.line h3 { font-size: 1.06rem; margin: 0 0 .15rem; }
+.totals { border-top: 1px solid var(--rule-2); padding-top: 1.25rem; }
+.totals dl { display: grid; grid-template-columns: 1fr auto; gap: .55rem 1rem; margin: 0 0 1.25rem; }
+.totals dt { color: var(--ink-2); font-size: var(--t-sm); }
+.totals dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; font-size: var(--t-sm); }
+.totals .grand { font-family: var(--mincho); font-size: var(--t-md); color: var(--ink); }
+.paywall { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; margin-top: 1.25rem; padding-top: 1rem; border-top: var(--hair); }
+.paymark { font-size: var(--t-xs); color: var(--ink-3); }
+.paymark::after { content: " /"; color: var(--rule-2); }
+.paymark:last-child::after { content: ""; }
+
+/* ---------- Prose ---------- */
+.prose { max-width: 66ch; }
+.prose h2 { font-size: var(--t-lg); margin-top: 2.75rem; padding-top: 1.4rem; border-top: 1px solid var(--rule-2); }
+.prose h3 { font-size: 1.1rem; margin-top: 1.9rem; }
+.prose ul, .prose ol { padding-left: 1.2rem; color: var(--ink-2); }
+.prose li { margin-bottom: .45rem; }
+.prose a { color: var(--shu); }
+.note { border-left: 3px solid var(--shu); padding: .2rem 0 .2rem 1.4rem; margin: 1.75rem 0; }
+.note p { font-size: var(--t-sm); color: var(--ink-2); margin-bottom: .5rem; }
+.note p:last-child { margin-bottom: 0; }
+
+/* ---------- Forms ---------- */
+.field { margin-bottom: 1.1rem; }
+.field label { display: block; font-size: var(--t-xs); color: var(--ink-3); margin-bottom: .35rem; letter-spacing: .03em; }
+.field input, .field textarea, .field select {
+  width: 100%; background: var(--ground-2); border: 1px solid var(--rule-2); color: var(--ink);
+  padding: .7rem .8rem; border-radius: 2px; font-family: inherit; font-size: 1rem;
+}
+.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--ink); outline: none; }
+.field textarea { min-height: 120px; resize: vertical; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 560px) { .field-row { grid-template-columns: 1fr; } }
+.hp { position: absolute; left: -9999px; }
+
+/* ---------- Footer ---------- */
+.footer { border-top: 1px solid var(--rule-2); margin-top: 4rem; padding: 3rem 0 2rem; }
+.footer__top { display: grid; grid-template-columns: minmax(0, 1.5fr) repeat(auto-fit, minmax(140px, 1fr)); gap: 2.5rem; }
+.footer h4 { font-family: var(--gothic); font-size: var(--t-xs); color: var(--ink-3); margin: 0 0 .8rem; font-weight: 500; letter-spacing: .04em; }
+.footer ul { list-style: none; margin: 0; padding: 0; }
+.footer li { margin-bottom: .45rem; }
+.footer a { font-size: var(--t-sm); color: var(--ink-2); text-decoration: none; }
+.footer a:hover { color: var(--shu); }
+.footer__legal { margin-top: 2.5rem; padding-top: 1.25rem; border-top: var(--hair); font-size: var(--t-xs); color: var(--ink-3); display: flex; flex-wrap: wrap; gap: .4rem 1.75rem; }
+
+/* ---------- Consent & toast ---------- */
+.consent { position: fixed; inset-inline: 0; bottom: 0; z-index: 100; background: var(--ground-3); border-top: 1px solid var(--shu); padding: 1.15rem var(--gut); transform: translateY(105%); transition: transform .4s cubic-bezier(.2,.8,.2,1); }
+.consent[data-show="true"] { transform: none; }
+.consent__in { max-width: var(--max); margin-inline: auto; display: flex; gap: 1.25rem; flex-wrap: wrap; align-items: center; }
+.consent p { font-size: var(--t-sm); margin: 0; flex: 1 1 320px; color: var(--ink-2); }
+.consent a { color: var(--ink); }
+.consent .btn { padding: .65rem 1.1rem; }
+
+.toast { position: fixed; z-index: 120; right: 1rem; bottom: 1rem; background: var(--ground-3); color: var(--ink); border: 1px solid var(--rule-2); border-left: 3px solid var(--shu); padding: .85rem 1.1rem; font-size: var(--t-sm); opacity: 0; transform: translateY(8px); transition: opacity .25s, transform .25s; pointer-events: none; max-width: 320px; }
+.toast[data-show="true"] { opacity: 1; transform: none; }
+
+.hidden { display: none !important; }
+
+/* ============================================================
+   Second pass. Devices reintroduced, each in a different role
+   from the reference site — noted inline so the reasoning
+   survives the next round of edits.
+   ============================================================ */
+
+/* ---------- Lighting model -----------------------------------
+   GRADIENT WASH, reimagined. Not a coloured blob behind a hero.
+   A single vertical falloff across the whole page ground, as if
+   one lamp hangs above the room. Lacquer is a reflective
+   surface; this is what a reflective surface does under a light.
+   Under 3% luminance shift end to end. */
+body {
+  background-image: linear-gradient(to bottom, #101014 0%, #0a0a0c 34%, #08080a 100%);
+  background-repeat: no-repeat;
+}
+
+/* GLOW, reimagined. Not neon spill from an accent colour. Warm
+   light bouncing off a lit plate onto the ground around it —
+   the plate is the light source, so the halo is plate-coloured. */
+.plate::after,
+.lot__plate::after,
+.card__plate::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  box-shadow: 0 0 70px -16px rgba(234, 231, 224, 0.32);
+  z-index: 1;
+}
+.lot__plate, .card__plate { position: relative; }
+
+/* ---------- Stencil edge -------------------------------------
+   UPPERCASE TRACKED LABEL, reimagined. Never an eyebrow above a
+   heading. Set vertically up the edge of a plate, the way a
+   reference is stencilled on the side of a shipping crate. */
+.stencil {
+  position: absolute;
+  left: -1.65rem; bottom: 0;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: .62rem;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  pointer-events: none;
+  user-select: none;
+}
+@media (max-width: 1080px) { .stencil { display: none; } }
+
+/* ---------- Lot reference ------------------------------------
+   NUMBERED MARKER, reimagined. Not 01/02/03 set large in grey as
+   a decorative label on non-sequential blocks. A real auction lot
+   number: small, tabular, quotable on the phone, and the thing a
+   trade customer will actually cite in an email. */
+.lotno {
+  color: var(--shu);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .08em;
+}
+
+/* ---------- Chain of custody, scroll-linked ------------------
+   SCROLL REVEAL, reimagined. Nothing fades in. One rail fills as
+   the section passes, because the content is a journey and the
+   rail is showing you where along it you are. A single element,
+   not a scattered entrance for every block on the page. */
+.chain { position: relative; }
+.chain::before {
+  content: "";
+  position: absolute; top: -1px; left: 0;
+  height: 1px; width: 100%;
+  background: var(--shu);
+  transform: scaleX(var(--chain-fill, 0));
+  transform-origin: left;
+  transition: transform .25s linear;
+}
+.chain__step::before { background: var(--rule-2); transition: background .3s, transform .3s; }
+.chain__step[data-passed="true"]::before { background: var(--shu); transform: scale(1.25); }
+@media (prefers-reduced-motion: reduce) {
+  .chain::before { transform: scaleX(1); }
+  .chain__step::before { background: var(--shu); }
+}
+
+/* ---------- Arrival ledger -----------------------------------
+   MARQUEE, reimagined. The reference site runs a decorative strip
+   of tech-stack words past you on a loop. This is the same
+   horizontal-strip DNA doing the opposite job: finite, factual,
+   and it only moves when you move it. Drag, scroll, or arrow
+   keys. PARALLAX lives inside it — the photograph shifts against
+   its frame as the strip is dragged, which is depth from the
+   input the user is already giving, not from page scroll. */
+.ledger { position: relative; }
+.ledger__strip {
+  display: flex; gap: 1px;
+  overflow-x: auto; overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  cursor: grab;
+  padding-bottom: 1.25rem;
+}
+.ledger__strip::-webkit-scrollbar { display: none; }
+.ledger__strip[data-drag="true"] { cursor: grabbing; scroll-snap-type: none; }
+
+.record {
+  flex: 0 0 clamp(240px, 30vw, 330px);
+  scroll-snap-align: start;
+  padding-right: 1.75rem;
+  border-right: var(--hair);
+  margin-right: 1.75rem;
+}
+.record:last-child { border-right: 0; }
+.record__plate { background: var(--plate); overflow: hidden; position: relative; box-shadow: 0 0 0 1px var(--rule-2); }
+.record__plate img {
+  width: 116%; max-width: none; aspect-ratio: 5/4; object-fit: cover;
+  transform: translateX(var(--pan, -8%));
+  will-change: transform;
+}
+.record dl { display: grid; grid-template-columns: auto 1fr; gap: .3rem .9rem; margin: .9rem 0 0; }
+.record dt { font-size: var(--t-xs); color: var(--ink-3); }
+.record dd { margin: 0; font-size: var(--t-xs); color: var(--ink-2); font-variant-numeric: tabular-nums; text-align: right; }
+.record__note { font-size: .92rem; line-height: 1.6; color: #b0b0b9; margin: .85rem 0 0; }
+.record__ref { font-family: var(--mincho); font-size: 1.1rem; margin: 0 0 .2rem; }
+
+.ledger__rail { height: 1px; background: var(--rule); position: relative; margin-top: .5rem; }
+.ledger__rail span { position: absolute; inset-block: -1px; left: 0; background: var(--shu); width: var(--seen, 25%); transition: width .12s linear; }
+.ledger__foot { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: .9rem; }
+.ledger__hint { font-size: var(--t-xs); color: var(--ink-3); }
+.ledger__keys { display: flex; gap: .4rem; }
+.ledger__keys button {
+  background: transparent; border: 1px solid var(--rule-2); color: var(--ink-2);
+  width: 34px; height: 34px; border-radius: 2px; cursor: pointer; font-size: 1rem; line-height: 1;
+}
+.ledger__keys button:hover:not([disabled]) { border-color: var(--ink); color: var(--ink); }
+.ledger__keys button[disabled] { opacity: .3; cursor: not-allowed; }
+
+/* ---------- Catalogue plate detail on hover ------------------
+   Reference and arrival date sit on the plate itself, appearing
+   only when the visitor is actually looking at that lot. */
+.card__stamp {
+  position: absolute; left: 0; top: 0; z-index: 2;
+  background: var(--ground); color: var(--ink-2);
+  font-size: .62rem; letter-spacing: .16em; text-transform: uppercase;
+  padding: .3rem .55rem;
+  opacity: 0; transform: translateY(-4px);
+  transition: opacity .2s, transform .2s;
+}
+.card:hover .card__stamp, .card:focus-visible .card__stamp { opacity: 1; transform: none; }
+
+/* ============================================================
+   Fourth pass. Brand mark, opening sequence, cursor, hexagon
+   geometry, masked reveals.
+   ============================================================ */
+
+:root {
+  --shu: #e8402a;              /* taken from the logo hexagon */
+  --shu-d: #a8290f;
+  --hex: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+/* ---------- Opening sequence -------------------------------
+   A vault mechanism, not a percentage. Two hexagonal rings counter-
+   rotate, four lugs drive home, the core locks and the doors part.
+
+   Built entirely in JS, so a script that never runs leaves no black
+   panels behind — the previous version put them in the HTML, and any
+   failure buried the page. It is also SVG and CSS rather than Lottie:
+   Lottie is ~250KB of JavaScript to play what 3KB of markup does here,
+   on a site sold on speed.
+   ============================================================ */
+.intro { position: fixed; inset: 0; z-index: 400; pointer-events: none; }
+.intro__panel { position: absolute; inset-inline: 0; height: 50.5vh; background: #060608; transition: transform 1.15s cubic-bezier(.76,0,.24,1) .55s; }
+.intro__panel--t { top: 0; }
+.intro__panel--b { bottom: 0; }
+.intro__core { position: absolute; inset: 0; display: grid; place-items: center; align-content: center; gap: 1.6rem; transition: opacity .4s ease; }
+
+.mech { width: clamp(140px, 26vw, 210px); }
+.mech__ring { transform-origin: 100px 100px; animation: spinA 2.9s cubic-bezier(.5,0,.2,1) forwards; }
+.mech__ring--b { animation: spinB 2.9s cubic-bezier(.5,0,.2,1) forwards; }
+@keyframes spinA { 0% { transform: rotate(0); } 72% { transform: rotate(228deg); } 100% { transform: rotate(240deg); } }
+@keyframes spinB { 0% { transform: rotate(0); } 72% { transform: rotate(-168deg); } 100% { transform: rotate(-180deg); } }
+
+.mech__lug { transform-origin: 100px 100px; animation: drive 1.9s cubic-bezier(.8,0,.2,1) 1.2s both; }
+@keyframes drive { from { transform: scale(1.34); opacity: .35; } to { transform: scale(1); opacity: 1; } }
+
+.mech__core { transform-origin: 100px 100px; animation: lock .6s cubic-bezier(.3,1.55,.4,1) 2.5s both; }
+@keyframes lock { 0% { transform: scale(.6) rotate(-40deg); opacity: 0; } 100% { transform: none; opacity: 1; } }
+
+.mech__sweep { transform-origin: 100px 100px; animation: sweep 2.2s linear infinite; }
+@keyframes sweep { to { transform: rotate(360deg); } }
+
+.intro__word {
+  font-family: var(--brush); font-size: clamp(1.6rem, 4vw, 2.2rem); letter-spacing: .5em;
+  text-indent: .5em; color: var(--shu); margin: 0;
+  opacity: 0; transform: translateY(10px);
+  animation: wordIn 1s cubic-bezier(.2,.9,.2,1) 3s forwards;
+}
+.intro__sub {
+  font-family: var(--gothic); font-size: .68rem; letter-spacing: .42em; text-indent: .42em;
+  color: #6a6a74; margin: 0; opacity: 0;
+  animation: wordIn 1s cubic-bezier(.2,.9,.2,1) 3.35s forwards;
+}
+@keyframes wordIn { to { opacity: 1; transform: none; } }
+
+.intro__skip {
+  position: fixed; right: 1.5rem; bottom: 1.4rem; z-index: 2;
+  background: none; border: 1px solid #2e2e36; color: #6a6a74;
+  font-family: var(--gothic); font-size: .62rem; letter-spacing: .24em;
+  padding: .5rem .9rem; cursor: pointer; pointer-events: auto;
+  opacity: 0; animation: wordIn .5s ease 1.1s forwards;
+}
+.intro__skip:hover { color: var(--ink); border-color: var(--ink); }
+.intro { pointer-events: none; }
+.intro[data-open="true"] .intro__skip { opacity: 0; transition: opacity .2s; }
+
+.intro[data-open="true"] .intro__panel--t { transform: translateY(-101%); }
+.intro[data-open="true"] .intro__panel--b { transform: translateY(101%); }
+.intro[data-open="true"] .intro__core { opacity: 0; transform: scale(.95); transition: opacity .55s ease, transform .8s cubic-bezier(.76,0,.24,1); }
+.intro[data-done="true"] { display: none; }
+
+/* ---------- Cursor -----------------------------------------
+   A hexagon, because the mark is a hexagon. It reports what the
+   thing under it does — over a plate it says INSPECT, which is the
+   one verb this whole business turns on. Pointer devices only. */
+@media (hover: hover) and (pointer: fine) {
+  .cursor {
+    position: fixed; top: 0; left: 0; z-index: 300;
+    width: 26px; height: 26px; margin: -13px 0 0 -13px;
+    pointer-events: none; mix-blend-mode: difference;
+    transition: width .22s cubic-bezier(.2,.9,.2,1), height .22s cubic-bezier(.2,.9,.2,1), margin .22s cubic-bezier(.2,.9,.2,1);
+    display: grid; place-items: center;
+  }
+  .cursor::before {
+    content: ""; position: absolute; inset: 0;
+    clip-path: var(--hex); background: #fff; opacity: .9;
+    transition: opacity .2s;
+  }
+  .cursor__label {
+    position: relative; font-size: .58rem; letter-spacing: .18em;
+    color: #000; opacity: 0; transition: opacity .18s; white-space: nowrap;
+  }
+  .cursor[data-mode="idle"] { width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; }
+  .cursor[data-mode="idle"]::before { opacity: .5; }
+  .cursor[data-mode="label"] { width: 94px; height: 94px; margin: -47px 0 0 -47px; }
+  .cursor[data-mode="label"] .cursor__label { opacity: 1; }
+  html.has-cursor, html.has-cursor * { cursor: none !important; }
+}
+@media (hover: none), (pointer: coarse) { .cursor { display: none; } }
+
+/* ---------- Masked reveals ---------------------------------
+   Nothing fades up from below. Content is uncovered by a wipe that
+   travels in the direction the eye is already going, which reads as
+   a shutter opening rather than a card floating in. */
+/* Gated on .js so a script failure can never leave the page blank.
+   Without JavaScript every one of these is simply visible. */
+/* reveal failsafe */
+html.js [data-reveal] { clip-path: inset(0 100% 0 0); transition: clip-path 1s cubic-bezier(.76,0,.24,1); animation: revealSafe 0s linear 2.5s forwards; }
+@keyframes revealSafe { to { clip-path: inset(0 0 0 0); } }
+html.js [data-reveal] { clip-path: inset(0 100% 0 0); transition: clip-path 1s cubic-bezier(.76,0,.24,1); }
+html.js [data-reveal="up"] { clip-path: inset(100% 0 0 0); }
+html.js [data-reveal="right"] { clip-path: inset(0 0 0 100%); }
+html.js [data-reveal][data-seen="true"] { clip-path: inset(0 0 0 0) !important; }
+@media (prefers-reduced-motion: reduce) { html.js [data-reveal] { clip-path: none !important; } }
+
+/* Headline arrives line by line, each from behind its own edge. */
+.reveal-line { display: block; overflow: hidden; }
+html.js .reveal-line > span { transform: translateY(105%); }
+.reveal-line > span { display: block; transition: transform .95s cubic-bezier(.76,0,.24,1); }
+[data-seen="true"] .reveal-line > span { transform: none; }
+.reveal-line:nth-child(2) > span { transition-delay: .09s; }
+.reveal-line:nth-child(3) > span { transition-delay: .18s; }
+@media (prefers-reduced-motion: reduce) { .reveal-line > span { transform: none !important; } }
+
+/* ---------- Hexagon geometry -------------------------------
+   The mark's shape, reused as structure: the seal, the section
+   markers, the ledger frames. Not applied to product photographs —
+   clipping a box someone is about to spend £215 on would be
+   design getting in the way of the sale. */
+.hexmark { width: 100%; height: 100%; clip-path: var(--hex); background: var(--shu); }
+
+.seal {
+  position: relative; width: 78px; height: 78px; flex: 0 0 78px;
+  display: grid; place-items: center;
+  clip-path: var(--hex); background: var(--shu); color: #fff;
+  font-family: var(--mincho); font-size: .82rem; line-height: 1.1; text-align: center;
+}
+.seal--sm { width: 38px; height: 38px; flex-basis: 38px; font-size: .5rem; }
+.seal--stamp { animation: sealIn .55s cubic-bezier(.2,1.35,.35,1) .3s both; }
+@keyframes sealIn { from { opacity: 0; transform: scale(1.55) rotate(-16deg); } to { opacity: 1; transform: none; } }
+
+.hexbullet { width: 11px; height: 11px; clip-path: var(--hex); background: var(--shu); flex: 0 0 11px; }
+
+/* Brand mark in the masthead and footer */
+.brand { gap: .7rem; align-items: center; }
+.brand__mark { width: 30px; height: 30px; flex: 0 0 30px; clip-path: var(--hex); background: var(--shu); }
+.brand__type { display: flex; flex-direction: column; line-height: 1; }
+.brand__type b { font-family: var(--gothic); font-weight: 700; font-size: 1.02rem; letter-spacing: .04em; color: var(--ink); }
+.brand__type span { font-size: .56rem; letter-spacing: .42em; color: var(--ink-3); margin-top: 4px; }
+
+.brand-stack { display: grid; place-items: center; gap: 1rem; text-align: center; }
+.brand-stack__mark { width: 54px; height: 54px; clip-path: var(--hex); background: var(--shu); }
+.brand-stack b { font-family: var(--gothic); font-weight: 700; font-size: 1.5rem; letter-spacing: .05em; display: block; }
+.brand-stack span { font-size: .72rem; letter-spacing: .5em; color: var(--ink-3); display: block; margin-top: .35rem; }
+
+/* Chain markers pick up the hexagon rather than a dot */
+.chain__step::before { clip-path: var(--hex); border-radius: 0; width: 11px; height: 11px; top: -6px; }
+
+/* Loupe reads as an instrument, not a bubble */
+.loupe { border-radius: 0; clip-path: var(--hex); box-shadow: none; outline: 2px solid var(--shu); outline-offset: -2px; }
+
+/* ---------- Refinements ------------------------------------ */
+.lot-hero__plate .plate { transition: transform .8s cubic-bezier(.16,1,.3,1); }
+.lot-hero__plate:hover .plate { transform: translateY(-4px); }
+
+.card { transition: transform .5s cubic-bezier(.16,1,.3,1); }
+.card:hover { transform: translateY(-5px); }
+
+.price-jp { display: block; font-family: var(--mincho); font-size: .78rem; color: var(--ink-3); margin-top: .1rem; letter-spacing: .1em; }
+
+.btn { position: relative; overflow: hidden; }
+.btn > span { position: relative; z-index: 1; }
+.btn::before {
+  content: ""; position: absolute; inset: 0; background: var(--shu);
+  clip-path: inset(0 100% 0 0); transition: clip-path .42s cubic-bezier(.76,0,.24,1);
+}
+.btn:hover::before { clip-path: inset(0 0 0 0); }
+.btn:hover { color: #fff; border-color: var(--shu); }
+.btn--quiet:hover { color: #fff; }
+
+
+/* ============================================================
+   Fifth pass: Japanese pattern work, the verification scanner,
+   and typographic weight.
+   ============================================================ */
+
+/* ---------- Asanoha 麻の葉 ---------------------------------
+   The hemp-leaf pattern is built from hexagons, which is why it is
+   the right texture for this brand and not just a nice one — it is
+   the logo mark repeated to infinity. Sits behind sections at a
+   luminance you notice only once you look for it. */
+.asanoha { position: relative; }
+.asanoha::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background-image: url("/assets/img/asanoha.svg");
+  background-size: 116px 200px;
+  opacity: .5;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 40%, #000 5%, transparent 72%);
+}
+.asanoha > * { position: relative; z-index: 1; }
+
+/* ---------- Concentration lines 集中線 ---------------------
+   Straight out of manga: radiating strokes that throw all the
+   attention at whatever is at the centre. Here that is the product.
+   Behind the hero plate only — used twice it would be noise. */
+.burst { position: absolute; inset: -22% -18%; z-index: 0; pointer-events: none; opacity: .5; }
+.burst svg { width: 100%; height: 100%; }
+.lot-hero__plate { position: relative; z-index: 1; }
+.lot-hero__plate .plate, .lot-hero__seal, .stencil { position: relative; z-index: 2; }
+
+/* ---------- Seigaiha 青海波 --------------------------------
+   Wave crests, as a divider rather than wallpaper. */
+.seigaiha { height: 46px; background-image: url("/assets/img/seigaiha.svg"); background-size: 88px 46px; background-repeat: repeat-x; opacity: .3; }
+
+/* ---------- Verification scanner ---------------------------
+   The hero interaction. Drag the line down the display and the
+   verification record writes itself onto the box as the scan passes:
+   seal state, carton, weight, arrival date.
+
+   The loupe magnifies a photograph, which is the right tool on a
+   product page where there is real photography to magnify. This is
+   the right tool on a homepage, where the job is to show a stranger
+   in four seconds what "we check every box" actually means. */
+.scan { position: absolute; inset: 0; z-index: 3; cursor: ns-resize; touch-action: pan-x; }
+.scan__line {
+  position: absolute; inset-inline: 0; top: var(--y, 42%); height: 2px;
+  background: var(--shu); box-shadow: 0 0 22px 2px rgba(232, 64, 42, .55);
+}
+.scan__line::before, .scan__line::after {
+  content: ""; position: absolute; top: 50%; width: 13px; height: 13px;
+  margin-top: -6.5px; clip-path: var(--hex); background: var(--shu);
+}
+.scan__line::before { left: -6px; }
+.scan__line::after { right: -6px; }
+
+/* The grip is the whole invitation. Without something that plainly
+   looks draggable, the interaction may as well not exist. */
+.scan__grip {
+  position: absolute; left: 50%; top: var(--y, 42%);
+  transform: translate(-50%, -50%);
+  width: 46px; height: 46px; display: grid; place-items: center;
+  clip-path: var(--hex); background: var(--shu); color: #fff;
+  font-size: 1rem; line-height: 1; z-index: 4; pointer-events: none;
+}
+.scan__grip::after {
+  content: ""; position: absolute; inset: -10px;
+  clip-path: var(--hex); border: 2px solid var(--shu); opacity: 0;
+}
+.scan[data-touched="false"] ~ .scan__grip::after { animation: ping 2s cubic-bezier(.2,.7,.4,1) infinite; }
+@keyframes ping {
+  0% { transform: scale(.86); opacity: .85; }
+  70%, 100% { transform: scale(1.5); opacity: 0; }
+}
+
+.scan__cta {
+  position: absolute; left: 50%; top: var(--y, 42%); z-index: 4;
+  transform: translate(calc(-50% + 88px), -50%);
+  display: flex; align-items: center; gap: .45rem; white-space: nowrap;
+  background: var(--shu); color: #fff; pointer-events: none;
+  font-family: var(--gothic); font-size: .62rem; font-weight: 700;
+  letter-spacing: .18em; padding: .45rem .7rem;
+  transition: opacity .3s ease;
+}
+.scan[data-touched="true"] ~ .scan__cta { opacity: 0; }
+@media (max-width: 560px) { .scan__cta { transform: translate(-50%, calc(-50% + 46px)); } }
+
+.scan__grip, .scan__cta, .scan__line, .scan__wash { transition: top .12s linear, height .12s linear; }
+@media (prefers-reduced-motion: reduce) { .scan__grip::after { animation: none !important; } }
+
+.scan__wash {
+  position: absolute; inset-inline: 0; top: 0; height: var(--y, 42%);
+  background: linear-gradient(to bottom, rgba(232,64,42,.04), rgba(232,64,42,.14));
+  border-bottom: 0;
+}
+
+.scan__row {
+  position: absolute; left: 5%; right: 5%;
+  display: flex; align-items: center; gap: .55rem;
+  font-family: var(--gothic); font-size: .64rem; letter-spacing: .13em;
+  color: #16161a; opacity: 0; transform: translateX(-8px);
+  transition: opacity .3s ease, transform .4s cubic-bezier(.2,.9,.2,1);
+}
+.scan__row[data-lit="true"] { opacity: 1; transform: none; }
+.scan__row b { background: #16161a; color: var(--plate); padding: .2rem .45rem; font-weight: 500; }
+.scan__row i { font-style: normal; color: var(--shu); font-weight: 700; }
+.scan__row span { height: 1px; flex: 1; background: rgba(22,22,26,.28); }
+
+.scan__hint {
+  position: absolute; left: 0; bottom: 0; z-index: 4;
+  background: var(--ground); color: var(--ink-2);
+  font-size: var(--t-xs); padding: .4rem .7rem; transition: opacity .2s;
+}
+.scan[data-touched="true"] ~ .scan__hint { opacity: 0; }
+
+/* ---------- Type weight --------------------------------------- */
+.lot-hero h1 { font-size: clamp(2.6rem, 6.4vw, 5.1rem); letter-spacing: -0.045em; }
+.card__title, .lot__title { font-weight: 800; letter-spacing: -.025em; }
+.price { font-weight: 800; letter-spacing: -.03em; }
+.seal { font-family: var(--brush); font-size: .9rem; letter-spacing: 0; }
+.seal--sm { font-size: .54rem; }
+.brand__type b { font-family: var(--gothic); }
+
+/* ============================================================
+   Seventh pass. Interaction variety: each section now does
+   something different, because four sections that all reveal the
+   same way on scroll is one idea repeated, not four ideas.
+   ============================================================ */
+
+/* ---------- Route ------------------------------------------
+   Replaces the old four-column "chain". That version was four
+   paragraphs in boxes with a line that filled on scroll: hard to
+   read, and it did not reward looking at it.
+
+   This is a flight path. Pick a waypoint and the panel below
+   changes — a real Tokyo-to-Manchester route where the third stop
+   is the one the whole business rests on. */
+.route { position: relative; }
+
+.route__map { position: relative; padding: 2.5rem 0 1rem; }
+.route__map svg { width: 100%; height: auto; overflow: visible; }
+.route__path { fill: none; stroke: var(--rule-2); stroke-width: 1.5; stroke-dasharray: 4 6; }
+.route__flown {
+  fill: none; stroke: var(--shu); stroke-width: 2;
+  stroke-dasharray: var(--len, 1000);
+  stroke-dashoffset: calc(var(--len, 1000) - (var(--len, 1000) * var(--progress, 0)));
+  transition: stroke-dashoffset .7s cubic-bezier(.5,0,.2,1);
+}
+
+.route__stops { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: -1px; }
+.route__stop {
+  position: relative; background: none; border: 0; border-top: 1px solid var(--rule);
+  padding: 1.5rem 1.5rem 1.5rem 0; text-align: left; cursor: pointer;
+  font-family: inherit; color: var(--ink-3);
+  transition: color .25s, border-color .25s;
+}
+.route__stop::before {
+  content: ""; position: absolute; top: -6px; left: 0;
+  width: 12px; height: 12px; clip-path: var(--hex);
+  background: var(--rule-2); transition: background .25s, transform .25s;
+}
+.route__stop:hover { color: var(--ink-2); }
+.route__stop[aria-selected="true"] { color: var(--ink); border-top-color: var(--shu); }
+.route__stop[aria-selected="true"]::before { background: var(--shu); transform: scale(1.3); }
+.route__when { display: block; font-size: .64rem; letter-spacing: .18em; margin-bottom: .5rem; }
+.route__name { display: block; font-family: var(--mincho); font-weight: 800; font-size: 1.15rem; letter-spacing: -.02em; line-height: 1.15; }
+@media (max-width: 780px) {
+  .route__stops { grid-template-columns: 1fr 1fr; }
+  .route__stop { padding-right: 1rem; }
+}
+
+.route__panel {
+  margin-top: 2.5rem; display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: clamp(1.5rem, 4vw, 3.5rem); align-items: start;
+}
+@media (max-width: 780px) { .route__panel { grid-template-columns: 1fr; } }
+.route__detail[hidden] { display: none; }
+.route__detail h3 { font-size: clamp(1.5rem, 3vw, 2.1rem); margin-bottom: .6rem; }
+.route__detail p { font-size: 1.06rem; line-height: 1.7; color: #c4c4cc; max-width: 52ch; }
+.route__detail .jp { color: var(--shu); font-size: 1rem; letter-spacing: .3em; display: block; margin-bottom: .8rem; }
+.route__facts { border-top: 1px solid var(--rule-2); }
+.route__facts div { display: flex; justify-content: space-between; gap: 1rem; padding: .8rem 0; border-bottom: 1px solid var(--rule); }
+.route__facts dt { font-size: .72rem; letter-spacing: .1em; color: var(--ink-3); }
+.route__facts dd { margin: 0; font-size: .92rem; color: var(--ink); font-variant-numeric: tabular-nums; }
+.route__facts dd em { font-style: normal; color: var(--shu); }
+
+.route__plane { transition: transform .7s cubic-bezier(.5,0,.2,1); }
+
+/* ---------- Index list: hover brings up the lot ------------
+   A different interaction again — the category list previews the
+   product it leads to, so the row is worth pointing at. */
+.index { position: relative; }
+.index__peek {
+  position: absolute; right: 0; top: 0; width: 220px; height: 176px;
+  background: var(--plate); box-shadow: 0 0 0 1px var(--rule-2), 0 30px 60px -30px #000;
+  opacity: 0; transform: translateY(8px) scale(.97); pointer-events: none;
+  transition: opacity .3s ease, transform .45s cubic-bezier(.16,1,.3,1), top .45s cubic-bezier(.16,1,.3,1);
+  z-index: 3;
+}
+.index__peek img { width: 100%; height: 100%; object-fit: cover; }
+.index[data-peek="true"] .index__peek { opacity: 1; transform: none; }
+@media (max-width: 900px) { .index__peek { display: none; } }
+
+/* ---------- Argument: pull quote counts itself up ---------- */
+.tally { font-family: var(--mincho); font-weight: 800; font-size: clamp(2.6rem, 6vw, 4rem); line-height: 1; letter-spacing: -.04em; color: var(--shu); font-variant-numeric: tabular-nums; }
+.tally-row { display: flex; align-items: baseline; gap: 1.1rem; padding: 1.1rem 0; border-bottom: 1px solid var(--rule); }
+.tally-row p { margin: 0; font-size: .92rem; color: var(--ink-2); max-width: 34ch; }
+
+/* ============================================================
+   Eighth pass. The route rebuilt as a telemetry panel, more
+   pattern work, and interaction variety that is not all cursor.
+   ============================================================ */
+
+/* ---------- Route as a console -----------------------------
+   The screenshot was a flat two-column list. This makes it read
+   like instrumentation: a framed panel, monospace-feel data on a
+   faint kō-shi (格子) grid, a live-looking header bar, and the
+   facts arriving one row at a time when a stop is chosen rather
+   than all at once. */
+.route__panel {
+  position: relative;
+  border: 1px solid var(--rule-2);
+  background:
+    linear-gradient(var(--ground-2), var(--ground-2)),
+    repeating-linear-gradient(0deg, transparent 0 27px, rgba(232,64,42,.04) 27px 28px);
+  padding: 0;
+  margin-top: 2.5rem;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  overflow: hidden;
+}
+.route__panel::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(255,255,255,.02) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(160deg, #000, transparent 80%);
+}
+.route__detail, .route__facts { position: relative; z-index: 1; }
+.route__detail { padding: clamp(1.5rem, 3vw, 2.5rem); border-right: 1px solid var(--rule); }
+@media (max-width: 780px) { .route__detail { border-right: 0; border-bottom: 1px solid var(--rule); } }
+
+/* header bar with a live dot and the leg reference */
+.route__bar {
+  display: flex; align-items: center; gap: .6rem;
+  font-family: var(--gothic); font-size: .62rem; font-weight: 700;
+  letter-spacing: .22em; color: var(--ink-3); margin-bottom: 1.4rem;
+}
+.route__bar .dot { width: 7px; height: 7px; clip-path: var(--hex); background: var(--shu); }
+.route__bar .dot { animation: livedot 1.8s ease-in-out infinite; }
+@keyframes livedot { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+.route__bar .ref { margin-left: auto; color: var(--ink-2); }
+
+.route__facts { padding: clamp(1.5rem, 3vw, 2.5rem); align-content: start; }
+.route__facts div {
+  display: grid; grid-template-columns: 8.5rem 1fr; align-items: baseline; gap: 1rem;
+  padding: .85rem 0; border-bottom: 1px solid var(--rule);
+  opacity: 0; transform: translateX(-10px);
+  transition: opacity .35s ease, transform .45s cubic-bezier(.2,.9,.2,1);
+}
+.route__facts[data-lit="true"] div { opacity: 1; transform: none; }
+.route__facts[data-lit="true"] div:nth-child(1) { transition-delay: .04s; }
+.route__facts[data-lit="true"] div:nth-child(2) { transition-delay: .10s; }
+.route__facts[data-lit="true"] div:nth-child(3) { transition-delay: .16s; }
+.route__facts[data-lit="true"] div:nth-child(4) { transition-delay: .22s; }
+.route__facts[data-lit="true"] div:nth-child(5) { transition-delay: .28s; }
+.route__facts dt { font-family: var(--gothic); font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+.route__facts dd { margin: 0; font-family: var(--gothic); font-size: .95rem; color: var(--ink); font-variant-numeric: tabular-nums; }
+.route__facts dd em { font-style: normal; color: var(--shu); font-weight: 700; }
+
+/* the animated readout value that types the elapsed figure */
+.route__facts dd.counter::after { content: ""; }
+
+/* ---------- Kikkō 亀甲 tortoise-shell divider ---------------
+   A hexagonal tessellation — again, the logo shape — as a thin
+   band between sections, replacing plain rules in two places. */
+.kikko { height: 34px; background-image: url("/assets/img/kikko.svg"); background-size: 40px 34px; opacity: .16; }
+
+/* ---------- Kō-shi 格子 lattice behind the trade block ------ */
+.trade { position: relative; overflow: hidden; }
+.trade::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(90deg, rgba(232,64,42,.05) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(232,64,42,.05) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 70% 90% at 100% 0%, #000, transparent 70%);
+}
+.trade > * { position: relative; }
+
+/* ---------- Ledger record: seal stamp on hover ------------- */
+.record__plate { position: relative; }
+.record__seal {
+  position: absolute; right: .5rem; bottom: .5rem; width: 30px; height: 30px;
+  clip-path: var(--hex); background: var(--shu); display: grid; place-items: center;
+  font-family: var(--brush); font-size: .46rem; color: #fff; line-height: 1;
+  opacity: 0; transform: scale(.7) rotate(-12deg); transition: opacity .25s, transform .35s cubic-bezier(.2,1.4,.4,1);
+}
+.record:hover .record__seal { opacity: 1; transform: none; }
+
+
+/* ============================================================
+   Ninth pass. Non-cursor interactivity per section, so the page
+   is not one gesture repeated.
+   ============================================================ */
+
+/* Catalogue: each card lifts its own price and lights its stock on
+   hover — a state change in the card itself, nothing to do with the
+   custom cursor. */
+.card__foot { position: relative; }
+.card .price { transition: transform .35s cubic-bezier(.2,.9,.2,1); transform-origin: left; }
+.card:hover .price { transform: scale(1.08); }
+.card .stock { transition: color .25s; }
+
+/* Catalogue: a thin scan bar crosses the plate once on hover, echoing
+   the hero's verification scan but as a quick confirming gesture. */
+.card__plate::before {
+  content: ""; position: absolute; inset-inline: 0; top: 0; height: 2px; z-index: 2;
+  background: var(--shu); box-shadow: 0 0 14px 1px rgba(232,64,42,.6);
+  transform: translateY(0); opacity: 0;
+}
+.card:hover .card__plate::before { animation: cardscan .7s cubic-bezier(.5,0,.2,1); }
+@keyframes cardscan {
+  0% { transform: translateY(0); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translateY(var(--plate-h, 200px)); opacity: 0; }
+}
+
+/* Product page gallery: the seal presses in when the photo is held
+   for the loupe, so inspecting and authenticating read as one act. */
+.gallery__plate[data-loupe="on"] ~ .gallery__seal .seal,
+.gallery__plate:hover .gallery__seal .seal { transform: scale(1.06); transition: transform .3s; }
+
+/* Filter chips: the active one draws a hexagon tick */
+.chip[aria-pressed="true"] { position: relative; padding-left: 1.1rem; }
+.chip[aria-pressed="true"]::before {
+  content: ""; position: absolute; left: 0; top: 50%; margin-top: -4px;
+  width: 8px; height: 8px; clip-path: var(--hex); background: var(--shu);
+}
+
+/* Section headings: the Japanese label draws a short underline as it
+   enters, a one-shot flourish rather than a hover state. */
+.section__head .jp { position: relative; display: inline-block; padding-bottom: .3rem; }
+html.js .section__head .jp::after {
+  content: ""; position: absolute; left: 0; bottom: 0; height: 2px; width: 100%;
+  background: var(--shu); transform: scaleX(0); transform-origin: left;
+  transition: transform .8s cubic-bezier(.76,0,.24,1) .2s;
+}
+html.js [data-seen="true"] .section__head .jp::after,
+html.js .section__head[data-seen="true"] .jp::after { transform: scaleX(1); }
+
+/* ============================================================
+   Collection page — a visual index of the whole range.
+   ============================================================ */
+.collgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+.coll { position: relative; background: var(--ground); text-decoration: none; display: block; overflow: hidden; }
+.coll__plate { aspect-ratio: 3/4; background: #000; overflow: hidden; }
+.coll__plate img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s cubic-bezier(.2,.8,.2,1); }
+.coll:hover .coll__plate img { transform: scale(1.05); }
+.coll__cap { position: absolute; inset-inline: 0; bottom: 0; padding: 1.4rem .9rem .8rem; display: flex; flex-direction: column; gap: .15rem;
+  background: linear-gradient(to top, rgba(6,6,8,.95) 40%, transparent); }
+.coll__name { font-family: var(--mincho); font-weight: 800; font-size: 1rem; line-height: 1.1; color: var(--ink); }
+.coll__jp { font-family: var(--brush); font-size: .78rem; color: var(--shu); }
+.coll__meta { font-size: .68rem; letter-spacing: .04em; color: var(--ink-2); font-variant-numeric: tabular-nums; margin-top: .2rem; }
+.coll--static { cursor: default; }
+.collgrid--muted .coll__plate img { opacity: .82; }
+/* hex tick appears on the live ones */
+.coll:not(.coll--static)::after { content: ""; position: absolute; top: .6rem; right: .6rem; width: 12px; height: 12px; clip-path: var(--hex); background: var(--shu); opacity: 0; transform: scale(.6); transition: opacity .25s, transform .3s cubic-bezier(.2,1.4,.4,1); }
+.coll:not(.coll--static):hover::after { opacity: 1; transform: none; }
+
+/* ============================================================
+   Mobile refinement pass. The site was built desktop-first in
+   places; this tightens everything at phone widths.
+   ============================================================ */
+@media (max-width: 640px) {
+  :root { --gut: 1.15rem; }
+  .lot-hero { padding: 1.5rem 0 2.5rem; }
+  .lot-hero h1 { font-size: clamp(2.2rem, 10vw, 3rem); }
+  .lot-hero__plate { max-width: 340px; margin-inline: auto; }
+
+  /* Route console stacks cleanly and the map shrinks */
+  .route__map { padding: 1.5rem 0 .5rem; }
+  .route__stops { grid-template-columns: 1fr 1fr; }
+  .route__stop { padding: 1rem .75rem 1rem 0; }
+  .route__name { font-size: 1rem; }
+  .route__detail h3 { font-size: 1.35rem; }
+  .route__facts div { grid-template-columns: 7rem 1fr; }
+
+  /* Collection grid: two up on phones, still legible */
+  .collgrid { grid-template-columns: 1fr 1fr; }
+  .coll__name { font-size: .88rem; }
+
+  /* Catalogue: single strong column rather than cramped pairs */
+  .grid { grid-template-columns: 1fr 1fr; }
+
+  /* Ledger cards size to the viewport */
+  .record { flex-basis: 78vw; }
+
+  /* Section rhythm tightens */
+  .section { padding: 2.25rem 0; }
+  .section__head { margin-bottom: 1.5rem; }
+  h2 { font-size: clamp(1.7rem, 7vw, 2.1rem); }
+
+  /* Hero scan hint/labels don't overflow small plates */
+  .scan__cta { font-size: .56rem; padding: .35rem .55rem; }
+  .scan__row { font-size: .58rem; }
+
+  /* Trade form fields full width */
+  .field-row { grid-template-columns: 1fr; }
+
+  /* Masthead: brand + burger only, nav collapses (already handled) */
+  .masthead__in { min-height: 62px; gap: .75rem; }
+  /* A sticky/blurred masthead becomes a containing block that traps the
+     fixed full-page nav inside the header bar. Removing the blur and, while
+     the menu is open, the stickiness, lets the overlay cover the whole screen. */
+  .masthead { backdrop-filter: none; }
+  body.nav-locked .masthead { position: static; }
+  .brand__type b { font-size: .95rem; }
+
+  /* Bigger tap targets everywhere */
+  .btn { padding: .95rem 1.4rem; }
+  .nav a { padding: .95rem 0; }
+  .chip { padding: .5rem .2rem; }
+}
+
+@media (max-width: 400px) {
+  .collgrid, .grid { grid-template-columns: 1fr; }
+  .lot { grid-template-columns: 1fr; }
+  .lot__plate { max-width: 260px; }
+}
+
+/* Respect notches / safe areas on modern phones */
+@supports (padding: max(0px)) {
+  .masthead__in, .wrap { padding-left: max(var(--gut), env(safe-area-inset-left)); padding-right: max(var(--gut), env(safe-area-inset-right)); }
+}
+
+/* Larger, easier controls on any touch device regardless of width */
+@media (hover: none) {
+  .qty button { width: 48px; height: 48px; }
+  .chip { min-height: 40px; }
+}
+
+/* ---------- Social icons ---------- */
+.social { display: flex; gap: .5rem; margin-top: 1rem; }
+.social a {
+  display: grid; place-items: center; width: 40px; height: 40px;
+  border: 1px solid var(--rule-2); border-radius: 2px; color: var(--ink-2);
+  transition: color .2s, border-color .2s, background .2s, transform .2s;
+}
+.social a:hover { color: #fff; border-color: var(--shu); background: var(--shu); transform: translateY(-2px); }
+/* hexagonal variant for the contact page */
+.social--hex a { clip-path: var(--hex); border: 0; background: var(--ground-3); width: 44px; height: 44px; }
+.social--hex a:hover { background: var(--shu); }
+
+/* ============================================================
+   Premium design pass. More editorial spacing, refined hero,
+   confident type, subtle luxury cues.
+   ============================================================ */
+
+/* Hero eyebrow — a considered label, not a plain line */
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: .7rem;
+  font-size: .72rem; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--ink-2); margin-bottom: 1.6rem;
+}
+.hero-eyebrow__mark { width: 28px; height: 1px; background: var(--shu); }
+.hero-eyebrow .jp { font-family: var(--brush); color: var(--shu); letter-spacing: .1em; text-transform: none; font-size: .9rem; }
+
+/* Hero headline — larger, tighter, more confident */
+.lot-hero h1 { font-size: clamp(2.8rem, 7.2vw, 5.6rem); line-height: .98; letter-spacing: -0.05em; }
+.lot-hero h1 .reveal-line:last-child span { color: var(--shu); }
+
+/* More generous section rhythm reads as premium */
+.section { padding: clamp(3.5rem, 8vw, 6.5rem) 0; }
+
+/* Refined hairlines — thinner, warmer */
+:root { --rule: #211f1b; --rule-2: #332f28; }
+
+/* Lift the lede into something with more presence */
+.lede { font-size: 1.2rem; line-height: 1.7; color: #cdcabf; }
+
+/* Buttons: a touch more weight and letter-spacing for a premium feel */
+.btn { letter-spacing: .03em; padding: 1rem 1.7rem; }
+
+/* Product plates get a subtle inner vignette so photos sit richer on the page */
+.card__plate, .lot__plate, .coll__plate, .gallery__plate .plate {
+  position: relative;
+}
+.card__plate::after, .coll__plate::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  box-shadow: inset 0 0 60px rgba(0,0,0,.4);
+}
+
+/* Price typography — more refined */
+.price { letter-spacing: -.02em; }
+
+/* A hairline accent above section headings for structure */
+.section__head { position: relative; }
+
+/* ============================================================
+   Provenance page — interactive verification experience.
+   ============================================================ */
+.prov-hero { padding: clamp(3rem, 7vw, 6rem) 0 clamp(2rem, 4vw, 3rem); }
+.prov-hero__title {
+  font-family: var(--mincho); font-weight: 800;
+  font-size: clamp(2.6rem, 8vw, 5.2rem); line-height: .96; letter-spacing: -.05em;
+  margin-bottom: 1.5rem;
+}
+.prov-hero__title .shu { color: var(--shu); }
+
+/* The verify tablist — a vertical index on desktop, horizontal scroll on mobile */
+.verify { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(1.5rem, 4vw, 3.5rem); align-items: start; border-top: 1px solid var(--rule-2); padding-top: 2.5rem; }
+@media (max-width: 820px) { .verify { grid-template-columns: 1fr; } }
+
+.verify__nav { display: flex; flex-direction: column; gap: 0; }
+.verify__tab {
+  display: flex; align-items: baseline; gap: 1rem; text-align: left;
+  background: none; border: 0; border-top: 1px solid var(--rule);
+  padding: 1.3rem .5rem 1.3rem 0; cursor: pointer; font-family: inherit;
+  color: var(--ink-3); transition: color .25s; width: 100%;
+}
+.verify__tab:first-child { border-top: 0; }
+.verify__tab:hover { color: var(--ink-2); }
+.verify__tab[aria-selected="true"] { color: var(--ink); }
+.verify__num { font-family: var(--mincho); font-weight: 800; font-size: 1rem; color: var(--rule-2); transition: color .25s; }
+.verify__tab[aria-selected="true"] .verify__num { color: var(--shu); }
+.verify__label { font-family: var(--mincho); font-weight: 800; font-size: 1.2rem; letter-spacing: -.02em; line-height: 1.2; }
+.verify__label .jp { display: block; font-family: var(--brush); font-size: .82rem; color: var(--shu); margin-bottom: .2rem; font-weight: 400; }
+
+@media (max-width: 820px) {
+  .verify__nav { flex-direction: row; overflow-x: auto; gap: 0; border-top: 0; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .verify__nav::-webkit-scrollbar { display: none; }
+  .verify__tab { flex: 0 0 auto; flex-direction: column; gap: .4rem; border-top: 0; border-bottom: 2px solid var(--rule); padding: .9rem 1.2rem .9rem 0; }
+  .verify__tab[aria-selected="true"] { border-bottom-color: var(--shu); }
+  .verify__label { font-size: 1rem; }
+}
+
+.verify__stage { position: relative; border: 1px solid var(--rule-2); background: var(--ground-2); overflow: hidden; }
+.verify__panel { display: grid; grid-template-columns: 1fr; }
+.verify__panel[hidden] { display: none; }
+.verify__visual {
+  aspect-ratio: 16/7; background: #000; display: grid; place-items: center; color: var(--ink-2);
+  border-bottom: 1px solid var(--rule-2);
+  background-image: radial-gradient(circle at 50% 40%, rgba(232,64,42,.08), transparent 60%);
+}
+.verify__visual svg { width: 40%; max-width: 200px; }
+.verify__text { padding: clamp(1.5rem, 3vw, 2.5rem); }
+.verify__text h2 { font-size: clamp(1.4rem, 3vw, 1.9rem); margin-bottom: .6rem; }
+.verify__text p { color: #bcbcc4; font-size: 1.02rem; line-height: 1.7; margin: 0; max-width: 54ch; }
+
+/* animated scene accents (fire when panel becomes visible) */
+.verify__panel:not([hidden]) .vln { stroke-dasharray: 200; stroke-dashoffset: 200; animation: draw 1s cubic-bezier(.5,0,.2,1) .1s forwards; }
+.verify__panel:not([hidden]) .vscan { animation: scanY 1.4s ease-in-out infinite; }
+.verify__panel:not([hidden]) .vtick { stroke-dasharray: 60; stroke-dashoffset: 60; animation: draw .6s ease .2s forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes scanY { 0%,100% { transform: translateY(-26px); opacity: .4; } 50% { transform: translateY(26px); opacity: 1; } }
+
+/* Company block */
+.prov-company { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: clamp(2rem,5vw,4rem); align-items: start; }
+@media (max-width: 820px) { .prov-company { grid-template-columns: 1fr; } }
+.prov-facts { border-top: 1px solid var(--rule-2); margin: 0; }
+.prov-facts div { display: grid; grid-template-columns: 11rem 1fr; gap: 1rem; padding: .95rem 0; border-bottom: 1px solid var(--rule); }
+.prov-facts dt { font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+.prov-facts dd { margin: 0; color: var(--ink); font-size: .95rem; }
+.prov-facts a { color: var(--shu); }
+@media (max-width: 480px) { .prov-facts div { grid-template-columns: 1fr; gap: .2rem; } }
+
+/* ============================================================
+   Mobile pass v2 — tuned for Safari on iPhone 17 Pro Max.
+   Tested target: ~440px logical width, notch + Dynamic Island,
+   home indicator, rubber-band scroll.
+   ============================================================ */
+
+/* iOS momentum scroll + no horizontal bleed anywhere */
+html, body { overflow-x: hidden; }
+* { -webkit-tap-highlight-color: rgba(232,64,42,.2); }
+
+/* Dynamic viewport height so 100vh doesn't jump when Safari's bars show/hide */
+@supports (height: 100dvh) {
+  .lot-hero { min-height: auto; }
+}
+
+/* Safe-area padding so content clears the notch/Island and home indicator */
+@supports (padding: max(0px)) {
+  .masthead__in { padding-top: max(0px, env(safe-area-inset-top)); }
+  .footer { padding-bottom: max(2rem, env(safe-area-inset-bottom)); }
+  .consent { padding-bottom: max(1.15rem, env(safe-area-inset-bottom)); }
+}
+
+@media (max-width: 640px) {
+  /* Headlines sized for the hand, not the desktop */
+  .lot-hero h1 { font-size: clamp(2.4rem, 11vw, 3.4rem); }
+  .prov-hero__title { font-size: clamp(2.3rem, 11vw, 3.4rem); }
+  h2 { font-size: clamp(1.6rem, 7.5vw, 2.1rem); }
+  .lede { font-size: 1.08rem; }
+
+  /* Hero stacks with the product first — people want to see the box */
+  .lot-hero__grid { gap: 1.75rem; }
+  .lot-hero__plate { max-width: 300px; }
+
+  /* Touch targets: Apple's 44px minimum everywhere */
+  .btn { padding: 1rem 1.5rem; min-height: 48px; }
+  .nav a { min-height: 48px; display: flex; align-items: center; }
+  .social a { width: 46px; height: 46px; }
+  .verify__tab { min-height: 44px; }
+  .chip { min-height: 44px; display: inline-flex; align-items: center; }
+
+  /* Catalogue + collection: 2-up with breathing room */
+  .grid { grid-template-columns: 1fr 1fr; gap: 1px; }
+  .collgrid { grid-template-columns: 1fr 1fr; }
+
+  /* Product detail stacks cleanly */
+  .pdp { gap: 1.5rem; }
+  .gallery__thumbs { gap: .4rem; }
+  .gallery__thumbs button { flex-basis: 64px; }
+
+  /* Route console readable on a phone */
+  .route__panel { grid-template-columns: 1fr; }
+  .route__stops { grid-template-columns: 1fr 1fr; }
+
+  /* Verify visual less tall on mobile so text is reachable */
+  .verify__visual { aspect-ratio: 16/9; }
+  .verify__visual svg { width: 50%; }
+
+  /* Ledger: one card fills most of the width, snap scrolls */
+  .record { flex-basis: 82vw; }
+
+  /* Footer columns collapse to a clean single stack */
+  .footer__top { grid-template-columns: 1fr 1fr; gap: 1.75rem; }
+  .footer__top > div:first-child { grid-column: 1 / -1; }
+
+  /* Tighten section rhythm so there's less endless scrolling */
+  .section { padding: 2.5rem 0; }
+
+  /* Cart lines readable */
+  .line { grid-template-columns: 64px 1fr; gap: .9rem; }
+  .line__side { grid-column: 2; }
+}
+
+@media (max-width: 420px) {
+  .footer__top { grid-template-columns: 1fr; }
+  .route__stops { grid-template-columns: 1fr; }
+}
+
+/* Larger controls on any touch device */
+@media (hover: none) {
+  .qty button { width: 50px; height: 50px; font-size: 1.3rem; }
+  .cartbtn { min-height: 44px; }
+  /* The custom cursor and loupe are pointer-only; make sure nothing
+     touch-based depends on hover. Catalogue cards reveal their stamp
+     on tap-focus instead. */
+  .card:active .card__stamp { opacity: 1; transform: none; }
+}
+
+/* Respect users who've turned on Reduce Motion in iOS settings */
+@media (prefers-reduced-motion: reduce) {
+  .verify__panel:not([hidden]) .vscan,
+  .ticker__track, .mech__sweep { animation: none !important; }
+}
+
+/* ============================================================
+   Policy pages — clean, readable, mobile-first legal layout.
+   ============================================================ */
+.policy { max-width: 70ch; }
+.policy h1 { font-size: clamp(2rem, 5vw, 2.8rem); margin-bottom: .4rem; }
+.policy__links {
+  display: flex; flex-wrap: wrap; gap: .5rem; margin: 1.5rem 0 2.5rem;
+  padding-bottom: 1.5rem; border-bottom: 1px solid var(--rule-2);
+}
+.policy__links a {
+  font-size: .78rem; letter-spacing: .04em; color: var(--ink-2); text-decoration: none;
+  padding: .4rem .8rem; border: 1px solid var(--rule-2); border-radius: 2px;
+  transition: color .2s, border-color .2s, background .2s;
+}
+.policy__links a:hover { color: #fff; border-color: var(--shu); background: var(--shu); }
+.policy h2 {
+  font-size: 1.3rem; margin-top: 2.75rem; padding-top: 1.25rem;
+  border-top: 1px solid var(--rule); counter-increment: sec;
+}
+.policy h2::before {
+  content: counter(sec) " · "; color: var(--shu); font-variant-numeric: tabular-nums;
+}
+.policy { counter-reset: sec; }
+.policy h3 { font-size: 1.05rem; margin-top: 1.75rem; color: var(--ink); }
+.policy p { color: #c4c4cc; line-height: 1.72; font-size: 1rem; }
+.policy ul { color: #c4c4cc; padding-left: 1.3rem; }
+.policy li { margin-bottom: .5rem; line-height: 1.6; }
+.policy a { color: var(--shu); }
+
+@media (max-width: 640px) {
+  .policy h2 { font-size: 1.15rem; }
+  .policy p, .policy ul { font-size: .96rem; }
+  .policy__links { gap: .4rem; }
+  .policy__links a { padding: .45rem .7rem; }
+}
+
+/* ---------- Studio credit ---------- */
+.footer__legal .credit { flex-basis: 100%; margin-top: .5rem; }
+.footer__legal .credit a {
+  color: #6f6f78; text-decoration: none; font-weight: 600;
+  transition: color .2s ease;
+}
+.footer__legal .credit a:hover,
+.footer__legal .credit a:active,
+.footer__legal .credit a:focus-visible { color: var(--shu); }
+
+/* Arrival ledger: graceful fallback when a record has no photo yet */
+.record__noimg {
+  width: 100%; aspect-ratio: 5/4; display: grid; place-items: center;
+  background: var(--ground-2); color: var(--ink-3);
+  font-family: var(--mincho); font-weight: 800; font-size: 1.4rem; letter-spacing: .05em;
+}
+
+/* ============================================================
+   Mega-menu — Shop panel, two columns (type + era).
+   Desktop: hover/click panel. Mobile: collapsible accordion.
+   ============================================================ */
+.nav__shop { position: relative; }
+.nav__trigger {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: none; border: 0; cursor: pointer; font: inherit;
+  color: var(--ink-2); padding: .4rem 0; letter-spacing: .01em;
+  transition: color .18s;
+}
+.nav__trigger svg { transition: transform .25s var(--ease); }
+.nav__trigger:hover, .nav__shop[data-open="true"] .nav__trigger { color: var(--ink); }
+.nav__shop[data-open="true"] .nav__trigger svg { transform: rotate(180deg); }
+
+.mega {
+  position: absolute; top: 100%; right: 0; z-index: 70;
+  width: min(720px, calc(100vw - 2rem));
+  background: var(--ground-2); border: 1px solid var(--rule-2);
+  box-shadow: 0 30px 70px -30px #000;
+  display: grid; grid-template-columns: minmax(0, .72fr) minmax(0, 1.28fr);
+  opacity: 0; visibility: hidden; transform: translateY(-6px);
+  transition: opacity .2s var(--ease), transform .2s var(--ease), visibility .2s;
+}
+/* Invisible bridge across the gap so the cursor never leaves the hover zone
+   travelling from the trigger down to the panel. */
+.mega::before {
+  content: ""; position: absolute; top: -14px; left: 0; right: 0; height: 14px;
+}
+.nav__shop[data-open="true"] .mega { opacity: 1; visibility: visible; transform: none; }
+
+.mega__col { padding: 1.5rem 1.6rem; }
+.mega__col + .mega__col { border-left: 1px solid var(--rule); }
+.mega__h {
+  font-family: var(--gothic); font-size: .68rem; font-weight: 600;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--ink-3);
+  margin: 0 0 1rem;
+}
+.mega__links { display: flex; flex-direction: column; gap: .1rem; }
+.mega__links a {
+  color: var(--ink-2); text-decoration: none; font-size: .95rem;
+  padding: .45rem .5rem; margin-inline: -.5rem; border-radius: 3px;
+  transition: color .15s, background .15s;
+}
+.mega__links a:hover { color: var(--ink); background: var(--ground-3); }
+/* eras in a tidy 2-col grid so 17 items read as an index, not a wall */
+.mega__eras { display: grid; grid-template-columns: 1fr 1fr; gap: .05rem .5rem; }
+.mega__eras a {
+  color: var(--ink-2); text-decoration: none; font-size: .88rem;
+  padding: .4rem .5rem; margin-inline: -.5rem; border-radius: 3px;
+  transition: color .15s, background .15s;
+}
+.mega__eras a:hover { color: var(--shu); background: var(--ground-3); }
+
+/* ---- Mobile: Shop opens as a SECOND full-page layer over the nav ---- */
+@media (max-width: 900px) {
+  .nav__shop { width: 100%; }
+  /* The Shop trigger looks like a nav row with a forward chevron */
+  .nav__trigger {
+    width: 100%; justify-content: space-between; min-height: 56px;
+    border-bottom: var(--hair); font-size: 1.15rem; color: var(--ink); padding: 1.1rem 0;
+  }
+  .nav__trigger svg { transform: rotate(-90deg); }
+
+  /* The mega panel becomes a fixed full-page layer sitting ABOVE the nav */
+  .mega {
+    position: fixed; inset: 0; z-index: 95;
+    width: 100%; box-shadow: none; border: 0;
+    grid-template-columns: 1fr; background: var(--ground);
+    opacity: 1; visibility: visible;
+    transform: translateX(100%); transition: transform .32s var(--ease);
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    padding: 0 var(--gut) calc(2rem + env(safe-area-inset-bottom, 0px));
+    display: block;
+  }
+  .nav__shop[data-open="true"] .mega { transform: none; }
+
+  /* A sticky back-bar at the top of the shop layer */
+  .mega::after {
+    content: ""; /* reserved */
+  }
+  .mega__back {
+    display: flex; align-items: center; gap: .6rem;
+    position: sticky; top: 0; z-index: 2;
+    background: var(--ground); border: 0; cursor: pointer;
+    width: calc(100% + 2 * var(--gut)); margin-inline: calc(-1 * var(--gut));
+    padding: calc(1rem + env(safe-area-inset-top, 0px)) var(--gut) 1rem;
+    color: var(--ink-2); font: inherit; font-size: .95rem;
+    border-bottom: var(--hair); text-align: left;
+  }
+  .mega__back svg { transform: rotate(90deg); }
+  .mega__back:hover { color: var(--ink); }
+
+  .mega__col { padding: 1.25rem 0 .5rem; }
+  .mega__col + .mega__col { border-left: 0; border-top: var(--hair); }
+  .mega__h { margin-top: .5rem; }
+  .mega__eras { grid-template-columns: 1fr 1fr; gap: .1rem .75rem; }
+  .mega__links a, .mega__eras a { min-height: 50px; display: flex; align-items: center; font-size: 1rem; }
+}
+/* The back button only exists on mobile; hidden on desktop */
+.mega__back { display: none; }
+
+/* ---- Era filter bar on the shop page (active era pill) ---- */
+.era-active {
+  display: inline-flex; align-items: center; gap: .5rem;
+  background: var(--shu); color: #fff; font-size: .8rem; font-weight: 600;
+  padding: .35rem .4rem .35rem .8rem; border-radius: 999px; margin-left: .5rem;
+}
+.era-active button {
+  background: rgba(255,255,255,.25); border: 0; color: #fff; cursor: pointer;
+  width: 20px; height: 20px; border-radius: 50%; line-height: 1; font-size: .9rem;
+  display: grid; place-items: center;
+}
+.era-active button:hover { background: rgba(255,255,255,.4); }
+
+/* ============================================================
+   Shop browse interface — handles the expanded catalogue cleanly.
+   ============================================================ */
+.browse { border-top: 1px solid var(--rule-2); padding-top: 1.5rem; }
+.browse__row { display: flex; gap: .75rem; flex-wrap: wrap; align-items: center; margin-bottom: 1.1rem; }
+
+.browse__search {
+  display: flex; align-items: center; gap: .55rem; flex: 1 1 280px; min-width: 0;
+  background: var(--ground-2); border: 1px solid var(--rule-2); border-radius: 4px;
+  padding: 0 .75rem; color: var(--ink-3); transition: border-color .18s;
+}
+.browse__search:focus-within { border-color: var(--ink-2); }
+.browse__search input { flex: 1; background: none; border: 0; color: var(--ink); font: inherit; padding: .7rem 0; min-width: 0; }
+.browse__search input:focus { outline: none; }
+.browse__search kbd { border: 1px solid var(--rule-2); border-radius: 3px; padding: .1em .45em; font: inherit; font-size: .72rem; color: var(--ink-3); }
+
+.browse__era, .browse__sort {
+  background: var(--ground-2); border: 1px solid var(--rule-2); border-radius: 4px;
+  color: var(--ink); font: inherit; font-size: .9rem; padding: .7rem .9rem; cursor: pointer;
+  transition: border-color .18s;
+}
+.browse__era { flex: 0 1 200px; }
+.browse__sort { flex: 0 1 180px; }
+.browse__era:focus, .browse__sort:focus { outline: none; border-color: var(--ink-2); }
+.browse__era option, .browse__sort option { background: var(--ground-2); color: var(--ink); }
+
+.browse__types { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.1rem; }
+.browse__types .chip {
+  background: var(--ground-2); border: 1px solid var(--rule-2); color: var(--ink-2);
+  border-radius: 999px; padding: .5rem .95rem; font-size: .84rem; cursor: pointer;
+  transition: color .15s, border-color .15s, background .15s;
+}
+.browse__types .chip:hover { color: var(--ink); border-color: var(--ink-3); }
+.browse__types .chip[aria-pressed="true"] { background: var(--shu); border-color: var(--shu); color: #fff; }
+
+.browse__status { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; min-height: 1.5rem; }
+.browse__status .count { color: var(--ink-3); font-size: .82rem; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 640px) {
+  .browse__row { gap: .6rem; }
+  .browse__search { flex-basis: 100%; }
+  .browse__era, .browse__sort { flex: 1 1 calc(50% - .3rem); }
+  .browse__types { gap: .4rem; }
+  .browse__types .chip { padding: .55rem .85rem; min-height: 40px; }
+}
+
+/* Lock the page behind the full-page mobile menu */
+body.nav-locked { overflow: hidden; }
+
+/* Cookie banner dismiss */
+.consent__x {
+  background: none; border: 0; color: var(--ink-3); cursor: pointer;
+  font-size: 1.4rem; line-height: 1; padding: .2rem .5rem; margin-left: .25rem;
+  transition: color .15s;
+}
+.consent__x:hover { color: var(--ink); }
+@media (max-width: 640px) { .consent__x { position: absolute; top: .4rem; right: .4rem; } }

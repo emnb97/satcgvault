@@ -1,0 +1,18 @@
+{
+  "name": "satcgvault-studio",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "sanity dev",
+    "deploy": "sanity deploy"
+  },
+  "dependencies": {
+    "sanity": "^3.99.0",
+    "react": "^19.2.2",
+    "react-dom": "^19.2.2",
+    "styled-components": "^6.1.13",
+    "@sanity/orderable-document-list": "^1.2.2",
+    "@sanity/cli": "^3.99.0"
+  }
+}

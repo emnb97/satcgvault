@@ -1,0 +1,682 @@
+{
+  "currency": "GBP",
+  "freeShippingThresholdPence": 7500,
+  "standardShippingPence": 499,
+  "products": [
+    {
+      "sku": "SATV-M6A-30TH",
+      "slug": "30th-celebration-booster-box",
+      "name": "30th Celebration",
+      "jp": "30th セレブレーション",
+      "type": "Booster Box",
+      "code": "M6a",
+      "set": "Mega",
+      "era": "Mega Era 2025–26",
+      "language": "Japanese",
+      "category": "special",
+      "packs": 30,
+      "cardsPerPack": 6,
+      "condition": "Factory sealed",
+      "sealed": true,
+      "preorder": true,
+      "rarity": "holo",
+      "pricePence": 21500,
+      "stock": 18,
+      "dispatch": "Dispatch on or after 3 October 2026",
+      "weightGrams": 520,
+      "palette": [
+        "#f2c53d",
+        "#4fa8e0",
+        "#f5e6a8",
+        "#1b4f8a"
+      ],
+      "summary": "The anniversary set. Thirty packs of six, and the single most chased Japanese release of the year.",
+      "detail": "Allocation confirmed with our Tokyo supplier and split between trade and retail. Six cards per pack rather than the usual five, with the special anniversary card pool running through the whole print. Reserve now — we do not expect a second allocation before the new year.",
+      "images": [
+        {
+          "url": "/assets/photos/0375.webp",
+          "thumb": "/assets/photos/0375-t.webp",
+          "alt": "30th Celebration Booster Box — sealed Japanese display, photographed on arrival"
+        },
+        {
+          "url": "/assets/photos/0374.webp",
+          "thumb": "/assets/photos/0374-t.webp",
+          "alt": "30th Celebration Booster Box — sealed Japanese display, photographed on arrival"
+        }
+      ],
+      "availability": "inbound"
+    },
+    {
+      "sku": "SATV-M1L-BRAVE",
+      "slug": "mega-brave-booster-box",
+      "name": "Mega Brave",
+      "jp": "メガブレイブ",
+      "type": "Booster Box",
+      "code": "M1L",
+      "set": "Mega",
+      "era": "Mega Era 2025–26",
+      "language": "Japanese",
+      "category": "booster-box",
+      "packs": 30,
+      "cardsPerPack": 5,
+      "condition": "Factory sealed",
+      "sealed": true,
+      "preorder": false,
+      "rarity": "vault",
+      "pricePence": 11900,
+      "stock": 12,
+      "dispatch": "In the vault — dispatched within 48 hours",
+      "weightGrams": 480,
+      "palette": [
+        "#d8342a",
+        "#2f6fc4",
+        "#f0a020",
+        "#1a1d2e"
+      ],
+      "summary": "Thirty Japanese packs. One half of the pair that opened the Mega Era.",
+      "detail": "One of two displays we hold in depth. Outer seals have never been broken and the arrival photographs for this consignment are available on request before you buy. One carton from this shipment was rejected on the seal check and returned.",
+      "images": [
+        {
+          "url": "/assets/photos/0379.webp",
+          "thumb": "/assets/photos/0379-t.webp",
+          "alt": "Mega Brave Booster Box — sealed Japanese display, photographed on arrival"
+        },
+        {
+          "url": "/assets/photos/0381.webp",
+          "thumb": "/assets/photos/0381-t.webp",
+          "alt": "Mega Brave Booster Box — sealed Japanese display, photographed on arrival"
+        },
+        {
+          "url": "/assets/photos/0378.webp",
+          "thumb": "/assets/photos/0378-t.webp",
+          "alt": "Mega Brave Booster Box — sealed Japanese display, photographed on arrival"
+        }
+      ],
+      "availability": "stock"
+    },
+    {
+      "sku": "SATV-M1S-SYMPH",
+      "slug": "mega-symphonia-booster-box",
+      "name": "Mega Symphonia",
+      "jp": "メガシンフォニア",
+      "type": "Booster Box",
+      "code": "M1S",
+      "set": "Mega",
+      "era": "Mega Era 2025–26",
+      "language": "Japanese",
+      "category": "booster-box",
+      "packs": 30,
+      "cardsPerPack": 5,
+      "condition": "Factory sealed",
+      "sealed": true,
+      "preorder": false,
+      "rarity": "vault",
+      "pricePence": 10500,
+      "stock": 7,
+      "dispatch": "In the vault — dispatched within 48 hours",
+      "weightGrams": 480,
+      "palette": [
+        "#e8409a",
+        "#8ad4e8",
+        "#f7e04a",
+        "#2b1440"
+      ],
+      "summary": "The other half of the opening pair. Thirty packs, sealed display.",
+      "detail": "Bought alongside Mega Brave on the same consignment and photographed together on arrival. Selling steadily rather than in a rush, which is usually the sign of a set people are actually keeping.",
+      "images": [
+        {
+          "url": "/assets/photos/0374.webp",
+          "thumb": "/assets/photos/0374-t.webp",
+          "alt": "Mega Symphonia Booster Box — sealed Japanese display, photographed on arrival"
+        },
+        {
+          "url": "/assets/photos/0389.webp",
+          "thumb": "/assets/photos/0389-t.webp",
+          "alt": "Mega Symphonia Booster Box — sealed Japanese display, photographed on arrival"
+        },
+        {
+          "url": "/assets/photos/0377.webp",
+          "thumb": "/assets/photos/0377-t.webp",
+          "alt": "Mega Symphonia Booster Box — sealed Japanese display, photographed on arrival"
+        }
+      ],
+      "availability": "stock"
+    },
+    {
+      "sku": "SATV-M3-MUNI",
+      "slug": "munikisu-zero-booster-box",
+      "name": "Munikisu Zero",
+      "jp": "ムニキスゼロ",
+      "type": "Booster Box",
+      "code": "M3",
+      "set": "Mega",
+      "era": "Mega Era 2025–26",
+      "language": "Japanese",
+      "category": "booster-box",
+      "packs": 30,
+      "cardsPerPack": 5,
+      "condition": "Factory sealed",
+      "sealed": true,
+      "preorder": false,
+      "rarity": "vault",
+      "pricePence": 9900,
+      "stock": 21,
+      "dispatch": "In the vault — dispatched within 48 hours",
+      "weightGrams": 480,
+      "palette": [
+        "#9ede2a",
+        "#d8342a",
+        "#1a1a1a",
+        "#5a2f8f"
+      ],
+      "summary": "Thirty Japanese packs. Held on standing order, so rarely out of stock.",
+      "detail": "One of the lines we keep on standing order with the supplier. Sealed cartons available to trade customers at matrix pricing — this is the set most of our shop customers buy in depth.",
+      "images": [
+        {
+          "url": "/assets/photos/0418.webp",
+          "thumb": "/assets/photos/0418-t.webp",
+          "alt": "Munikisu Zero Booster Box — sealed Japanese display, photographed on arrival"
+        },
+        {
+          "url": "/assets/photos/0420.webp",
+          "thumb": "/assets/photos/0420-t.webp",
+          "alt": "Munikisu Zero Booster Box — sealed Japanese display, photographed on arrival"
+        },
+        {
+          "url": "/assets/photos/0421.webp",
+          "thumb": "/assets/photos/0421-t.webp",
+          "alt": "Munikisu Zero Booster Box — sealed Japanese display, photographed on arrival"
+        }
+      ],
+      "availability": "stock"
+    },
+    {
+      "sku": "SATV-M4-NINJA",
+      "slug": "ninja-spinner-booster-box",
+      "name": "Ninja Spinner",
+      "jp": "ニンジャスピナー",
+      "type": "Booster Box",
+      "code": "M4",
+      "set": "Mega",
+      "era": "Mega Era 2025–26",
+      "language": "Japanese",
+      "category": "booster-box",
+      "packs": 30,
+      "cardsPerPack": 5,
+      "condition": "Factory sealed",
+      "sealed": true,
+      "preorder": false,
+      "rarity": "vault",
+      "pricePence": 10900,
+      "stock": 4,
+      "dispatch": "In the vault — dispatched within 48 hours",
+      "weightGrams": 480,
+      "palette": [
+        "#2f6fc4",
+        "#f26522",
+        "#7b3fa0",
+        "#0d1b3a"
+      ],
+      "summary": "Thirty Japanese packs. Four displays left from the August consignment.",
+      "detail": "Landed on CN-2519 and sold down quickly. What is listed is what is physically on the shelf — the number updates as orders come through and we do not backorder this line.",
+      "images": [
+        {
+          "url": "/assets/photos/0397.webp",
+          "thumb": "/assets/photos/0397-t.webp",
+          "alt": "Ninja Spinner Booster Box — sealed Japanese display, photographed on arrival"
+        },
+        {
+          "url": "/assets/photos/0395.webp",
+          "thumb": "/assets/photos/0395-t.webp",
+          "alt": "Ninja Spinner Booster Box — sealed Japanese display, photographed on arrival"
+        },
+        {
+          "url": "/assets/photos/0396.webp",
+          "thumb": "/assets/photos/0396-t.webp",
+          "alt": "Ninja Spinner Booster Box — sealed Japanese display, photographed on arrival"
+        }
+      ],
+      "availability": "stock"
+    },
+    {
+      "sku": "SATV-M5-ABYSS",
+      "slug": "abyss-eye-booster-box",
+      "name": "Abyss Eye",
+      "jp": "アビスアイ",
+      "type": "Booster Box",
+      "code": "M5",
+      "set": "Mega",
+      "era": "Mega Era 2025–26",
+      "language": "Japanese",
+      "category": "preorder",
+      "packs": 30,
+      "cardsPerPack": 5,
+      "condition": "Factory sealed",
+      "sealed": true,
+      "preorder": true,
+      "rarity": "allocation",
+      "pricePence": 11500,
+      "stock": 30,
+      "dispatch": "Dispatch on or after 18 September 2026",
+      "weightGrams": 480,
+      "palette": [
+        "#7b3fa0",
+        "#9ede2a",
+        "#c9b8e0",
+        "#1a0d2e"
+      ],
+      "summary": "Inbound on confirmed allocation. Thirty packs, reserve before it lands.",
+      "detail": "Allocation confirmed with our Tokyo supplier against a named order. If the supplier moves the street date you hear it from us by email before a tracking page tells you, and you can cancel for a full refund at any point before dispatch.",
+      "images": [
+        {
+          "url": "/assets/photos/0408.webp",
+          "thumb": "/assets/photos/0408-t.webp",
+          "alt": "Abyss Eye Booster Box — sealed Japanese display, photographed on arrival"
+        },
+        {
+          "url": "/assets/photos/0410.webp",
+          "thumb": "/assets/photos/0410-t.webp",
+          "alt": "Abyss Eye Booster Box — sealed Japanese display, photographed on arrival"
+        },
+        {
+          "url": "/assets/photos/0411.webp",
+          "thumb": "/assets/photos/0411-t.webp",
+          "alt": "Abyss Eye Booster Box — sealed Japanese display, photographed on arrival"
+        }
+      ],
+      "availability": "inbound"
+    },
+    {
+      "sku": "SATV-SV1S-SCAR",
+      "slug": "scarlet-ex-booster-box",
+      "name": "Scarlet ex",
+      "jp": "スカーレットex",
+      "type": "Booster Box",
+      "code": "sv1S",
+      "set": "Scarlet & Violet",
+      "era": "Scarlet & Violet",
+      "language": "Japanese",
+      "category": "special",
+      "packs": 30,
+      "cardsPerPack": 5,
+      "condition": "Factory sealed",
+      "sealed": true,
+      "preorder": false,
+      "rarity": "vault",
+      "pricePence": 8900,
+      "stock": 9,
+      "dispatch": "In the vault — dispatched within 48 hours",
+      "weightGrams": 480,
+      "palette": [
+        "#e8542a",
+        "#3aa856",
+        "#f2c53d",
+        "#123020"
+      ],
+      "summary": "The set that opened Scarlet & Violet. Increasingly hard to source sealed.",
+      "detail": "Older stock, held back deliberately. Japanese base sets get quietly harder to find in sealed displays about two years after release, which is roughly where this one now sits.",
+      "images": [
+        {
+          "url": "/assets/photos/0385.webp",
+          "thumb": "/assets/photos/0385-t.webp",
+          "alt": "Scarlet ex Booster Box — sealed Japanese display, photographed on arrival"
+        },
+        {
+          "url": "/assets/photos/0405.webp",
+          "thumb": "/assets/photos/0405-t.webp",
+          "alt": "Scarlet ex Booster Box — sealed Japanese display, photographed on arrival"
+        },
+        {
+          "url": "/assets/photos/0406.webp",
+          "thumb": "/assets/photos/0406-t.webp",
+          "alt": "Scarlet ex Booster Box — sealed Japanese display, photographed on arrival"
+        }
+      ],
+      "availability": "stock"
+    },
+    {
+      "sku": "SATV-SV1V-VIOL",
+      "slug": "violet-ex-booster-box",
+      "name": "Violet ex",
+      "jp": "バイオレットex",
+      "type": "Booster Box",
+      "code": "sv1V",
+      "set": "Scarlet & Violet",
+      "era": "Scarlet & Violet",
+      "language": "Japanese",
+      "category": "special",
+      "packs": 30,
+      "cardsPerPack": 5,
+      "condition": "Factory sealed",
+      "sealed": true,
+      "preorder": false,
+      "rarity": "vault",
+      "pricePence": 8900,
+      "stock": 0,
+      "dispatch": "Sold out — next allocation expected October",
+      "weightGrams": 480,
+      "palette": [
+        "#5ac8d8",
+        "#8b4fc4",
+        "#e0f2f5",
+        "#0d2a3a"
+      ],
+      "summary": "The paired half of Scarlet ex. Currently between allocations.",
+      "detail": "We keep these two paired where we can. Ask to be told when the next allocation lands and we will email you before it goes back on the site.",
+      "images": [
+        {
+          "url": "/assets/photos/0363.webp",
+          "thumb": "/assets/photos/0363-t.webp",
+          "alt": "Violet ex Booster Box — sealed Japanese display, photographed on arrival"
+        },
+        {
+          "url": "/assets/photos/0365.webp",
+          "thumb": "/assets/photos/0365-t.webp",
+          "alt": "Violet ex Booster Box — sealed Japanese display, photographed on arrival"
+        },
+        {
+          "url": "/assets/photos/0364.webp",
+          "thumb": "/assets/photos/0364-t.webp",
+          "alt": "Violet ex Booster Box — sealed Japanese display, photographed on arrival"
+        }
+      ],
+      "availability": "stock"
+    },
+    {
+      "sku": "SATV-ACR-ETB",
+      "slug": "magnetic-acrylic-etb-case",
+      "name": "Magnetic Acrylic Case",
+      "jp": "",
+      "type": "Display Case",
+      "code": "VAULT-01",
+      "set": "Vault Line",
+      "era": "Vault Line",
+      "language": "N/A",
+      "category": "accessories",
+      "packs": 0,
+      "cardsPerPack": 0,
+      "condition": "New",
+      "sealed": true,
+      "preorder": false,
+      "rarity": "vault",
+      "pricePence": 2500,
+      "stock": 60,
+      "dispatch": "In the vault — dispatched within 48 hours",
+      "weightGrams": 540,
+      "palette": [
+        "#c8ccd4",
+        "#8f959f",
+        "#e8ebef",
+        "#2a2d34"
+      ],
+      "summary": "UV-filtered acrylic with a magnetic closure, cut for a standard booster display.",
+      "detail": "Our own line. Four-millimetre UV-filtering acrylic, a magnetic closure rather than a slide fit, and a felt base so the box does not scuff. Protection worth putting a £215 display behind.",
+      "images": [
+        {
+          "url": "/assets/photos/0432.webp",
+          "thumb": "/assets/photos/0432-t.webp",
+          "alt": "Magnetic Acrylic Case Display Case — sealed Japanese display, photographed on arrival"
+        },
+        {
+          "url": "/assets/photos/0433.webp",
+          "thumb": "/assets/photos/0433-t.webp",
+          "alt": "Magnetic Acrylic Case Display Case — sealed Japanese display, photographed on arrival"
+        },
+        {
+          "url": "/assets/photos/0434.webp",
+          "thumb": "/assets/photos/0434-t.webp",
+          "alt": "Magnetic Acrylic Case Display Case — sealed Japanese display, photographed on arrival"
+        }
+      ],
+      "availability": "stock"
+    },
+    {
+      "sku": "SATV-CLAYBURST",
+      "slug": "clay-burst",
+      "name": "クレイバースト",
+      "jp": "クレイバースト",
+      "type": "Booster Box",
+      "code": "sv2D",
+      "set": "Scarlet & Violet",
+      "era": "Scarlet & Violet",
+      "language": "Japanese",
+      "category": "special",
+      "availability": "sourced",
+      "packs": 30,
+      "cardsPerPack": 5,
+      "condition": "Factory sealed",
+      "sealed": true,
+      "preorder": false,
+      "rarity": "vault",
+      "pricePence": 0,
+      "stock": 0,
+      "dispatch": "Sourced to order — ask about availability",
+      "weightGrams": 480,
+      "summary": "クレイバースト — sourced to order. Ask about availability or join the restock list.",
+      "detail": "We source this set to order rather than holding it in depth. Contact us for current availability and pricing.",
+      "images": [
+        {
+          "url": "/assets/photos/0403.webp",
+          "thumb": "/assets/photos/0403-t.webp",
+          "alt": "クレイバースト sealed Japanese booster box"
+        }
+      ]
+    },
+    {
+      "sku": "SATV-FUTUREFLASH",
+      "slug": "future-flash",
+      "name": "未来の一閃",
+      "jp": "未来の一閃",
+      "type": "Booster Box",
+      "code": "sv4M",
+      "set": "Scarlet & Violet",
+      "era": "Scarlet & Violet",
+      "language": "Japanese",
+      "category": "special",
+      "availability": "sourced",
+      "packs": 30,
+      "cardsPerPack": 5,
+      "condition": "Factory sealed",
+      "sealed": true,
+      "preorder": false,
+      "rarity": "vault",
+      "pricePence": 0,
+      "stock": 0,
+      "dispatch": "Sourced to order — ask about availability",
+      "weightGrams": 480,
+      "summary": "未来の一閃 — sourced to order. Ask about availability or join the restock list.",
+      "detail": "We source this set to order rather than holding it in depth. Contact us for current availability and pricing.",
+      "images": [
+        {
+          "url": "/assets/photos/0413.webp",
+          "thumb": "/assets/photos/0413-t.webp",
+          "alt": "未来の一閃 sealed Japanese booster box"
+        }
+      ]
+    },
+    {
+      "sku": "SATV-BATTLEPARTNE",
+      "slug": "battle-partners",
+      "name": "バトルパートナーズ",
+      "jp": "バトルパートナーズ",
+      "type": "Booster Box",
+      "code": "sv9",
+      "set": "Scarlet & Violet",
+      "era": "Scarlet & Violet",
+      "language": "Japanese",
+      "category": "special",
+      "availability": "sourced",
+      "packs": 30,
+      "cardsPerPack": 5,
+      "condition": "Factory sealed",
+      "sealed": true,
+      "preorder": false,
+      "rarity": "vault",
+      "pricePence": 0,
+      "stock": 0,
+      "dispatch": "Sourced to order — ask about availability",
+      "weightGrams": 480,
+      "summary": "バトルパートナーズ — sourced to order. Ask about availability or join the restock list.",
+      "detail": "We source this set to order rather than holding it in depth. Contact us for current availability and pricing.",
+      "images": [
+        {
+          "url": "/assets/photos/0393.webp",
+          "thumb": "/assets/photos/0393-t.webp",
+          "alt": "バトルパートナーズ sealed Japanese booster box"
+        }
+      ]
+    },
+    {
+      "sku": "SATV-NIGHTWANDERE",
+      "slug": "night-wanderer",
+      "name": "ナイトワンダラー",
+      "jp": "ナイトワンダラー",
+      "type": "Booster Box",
+      "code": "sv6a",
+      "set": "Scarlet & Violet",
+      "era": "Scarlet & Violet",
+      "language": "Japanese",
+      "category": "special",
+      "availability": "sourced",
+      "packs": 30,
+      "cardsPerPack": 5,
+      "condition": "Factory sealed",
+      "sealed": true,
+      "preorder": false,
+      "rarity": "vault",
+      "pricePence": 0,
+      "stock": 0,
+      "dispatch": "Sourced to order — ask about availability",
+      "weightGrams": 480,
+      "summary": "ナイトワンダラー — sourced to order. Ask about availability or join the restock list.",
+      "detail": "We source this set to order rather than holding it in depth. Contact us for current availability and pricing.",
+      "images": [
+        {
+          "url": "/assets/photos/0422.webp",
+          "thumb": "/assets/photos/0422-t.webp",
+          "alt": "ナイトワンダラー sealed Japanese booster box"
+        }
+      ]
+    },
+    {
+      "sku": "SATV-STORMEMERALD",
+      "slug": "storm-emeralda",
+      "name": "ストームエメラルダ",
+      "jp": "ストームエメラルダ",
+      "type": "Booster Box",
+      "code": "",
+      "set": "Scarlet & Violet",
+      "era": "Scarlet & Violet",
+      "language": "Japanese",
+      "category": "special",
+      "availability": "sourced",
+      "packs": 30,
+      "cardsPerPack": 5,
+      "condition": "Factory sealed",
+      "sealed": true,
+      "preorder": false,
+      "rarity": "vault",
+      "pricePence": 0,
+      "stock": 0,
+      "dispatch": "Sourced to order — ask about availability",
+      "weightGrams": 480,
+      "summary": "ストームエメラルダ — sourced to order. Ask about availability or join the restock list.",
+      "detail": "We source this set to order rather than holding it in depth. Contact us for current availability and pricing.",
+      "images": [
+        {
+          "url": "/assets/photos/0429.webp",
+          "thumb": "/assets/photos/0429-t.webp",
+          "alt": "ストームエメラルダ sealed Japanese booster box"
+        }
+      ]
+    },
+    {
+      "sku": "SATV-BATTLEREGION",
+      "slug": "battle-region",
+      "name": "バトルリージョン",
+      "jp": "バトルリージョン",
+      "type": "Booster Box",
+      "code": "",
+      "set": "Scarlet & Violet",
+      "era": "Scarlet & Violet",
+      "language": "Japanese",
+      "category": "special",
+      "availability": "sourced",
+      "packs": 30,
+      "cardsPerPack": 5,
+      "condition": "Factory sealed",
+      "sealed": true,
+      "preorder": false,
+      "rarity": "vault",
+      "pricePence": 0,
+      "stock": 0,
+      "dispatch": "Sourced to order — ask about availability",
+      "weightGrams": 480,
+      "summary": "バトルリージョン — sourced to order. Ask about availability or join the restock list.",
+      "detail": "We source this set to order rather than holding it in depth. Contact us for current availability and pricing.",
+      "images": [
+        {
+          "url": "/assets/photos/0373.webp",
+          "thumb": "/assets/photos/0373-t.webp",
+          "alt": "バトルリージョン sealed Japanese booster box"
+        }
+      ]
+    }
+  ],
+  "consignments": [
+    {
+      "ref": "CN-2608",
+      "date": "2026-08-26",
+      "origin": "Tokyo",
+      "lines": 3,
+      "cartons": 14,
+      "image": "30th-celebration",
+      "note": "30th Celebration allocation, seals verified against supplier manifest"
+    },
+    {
+      "ref": "CN-2519",
+      "date": "2026-08-12",
+      "origin": "Tokyo",
+      "lines": 2,
+      "cartons": 9,
+      "image": "ninja-spinner",
+      "note": "Ninja Spinner, split between trade and retail on arrival"
+    },
+    {
+      "ref": "CN-2444",
+      "date": "2026-07-29",
+      "origin": "Tokyo",
+      "lines": 4,
+      "cartons": 22,
+      "image": "munikisu-zero",
+      "note": "Standing-order lines plus a Munikisu Zero depth buy"
+    },
+    {
+      "ref": "CN-2377",
+      "date": "2026-07-15",
+      "origin": "Osaka",
+      "lines": 2,
+      "cartons": 11,
+      "image": "scarlet-ex",
+      "note": "Older Scarlet & Violet stock, sourced sealed from a closing retailer"
+    },
+    {
+      "ref": "CN-2301",
+      "date": "2026-06-30",
+      "origin": "Tokyo",
+      "lines": 3,
+      "cartons": 16,
+      "image": "mega-brave",
+      "note": "Mega Brave and Symphonia. One carton rejected on seal check, returned"
+    },
+    {
+      "ref": "CN-2245",
+      "date": "2026-06-17",
+      "origin": "Tokyo",
+      "lines": 1,
+      "cartons": 6,
+      "image": "mega-symphonia",
+      "note": "Symphonia top-up, sold through inside nine days"
+    }
+  ]
+}

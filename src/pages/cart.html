@@ -1,0 +1,48 @@
+---
+{"title":"Your bag | S&A TCG Vault","description":"Review your bag and continue to secure checkout.","noindex":true,"nositemap":true}
+---
+<section class="section">
+  <div class="wrap">
+    <h1>Your bag</h1>
+
+    <div style="display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:2rem;align-items:start" class="cart-layout">
+      <div id="cart-lines"></div>
+
+      <aside class="totals hidden" id="cart-summary">
+        <h2 style="font-size:var(--t-md);margin-bottom:1rem">Order summary</h2>
+        <dl>
+          <dt>Subtotal</dt><dd id="sum-sub">£0.00</dd>
+          <dt>Delivery</dt><dd id="sum-ship">£0.00</dd>
+          <dt class="grand">Total</dt><dd class="grand" id="sum-total">£0.00</dd>
+        </dl>
+        <button class="btn btn--block" id="checkout" type="button">Checkout</button>
+        <p class="meta" style="margin:.75rem 0 0">Prices are confirmed again on the secure checkout page before you pay. Delivery is free over £50.</p>
+        <p class="meta" id="bnpl-msg" style="margin:.5rem 0 0"></p>
+
+        <div class="paywall">
+          <span>Pay with</span>
+          <span class="paymark">Card</span>
+          <span class="paymark">Apple&nbsp;Pay</span>
+          <span class="paymark">Google&nbsp;Pay</span>
+          <span class="paymark">Klarna</span>
+          <span class="paymark">Clearpay</span>
+        </div>
+        <p class="meta" style="margin:.75rem 0 0">
+          Klarna and Clearpay are provided by those companies, not by us. Availability depends on their checks. See our
+          <a href="/policies/terms.html">terms</a>.
+        </p>
+
+        <p style="font-size:.75rem;margin:1rem 0 0">
+          By continuing you agree to our <a href="/policies/terms.html">terms and conditions</a>,
+          <a href="/policies/returns.html">returns policy</a>,
+          <a href="/policies/delivery.html">delivery policy</a> and
+          <a href="/policies/privacy.html">privacy policy</a>.
+        </p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<style>
+@media (max-width: 820px) { .cart-layout { grid-template-columns: 1fr !important; } }
+</style>

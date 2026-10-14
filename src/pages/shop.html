@@ -1,0 +1,67 @@
+---
+{"title":"Catalogue — sealed Japanese Pokémon booster boxes and premium sets | S&A TCG Vault","description":"Every sealed Japanese Pokémon lot currently held in the Manchester vault, plus inbound Tokyo allocations open to reserve. Live stock, full condition reports, photographed on arrival.","priority":"0.9"}
+---
+<section class="section">
+  <div class="wrap">
+    <h1>Catalogue</h1>
+    <p class="lede">Everything here is physically in the Manchester unit unless it is marked inbound. Each lot carries its reference, its condition and the date it was photographed on arrival.</p>
+
+    <div class="browse" style="margin-top:2.5rem">
+      <div class="browse__row">
+        <label class="hidden" for="q">Search the catalogue</label>
+        <div class="browse__search">
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l4 4" stroke="currentColor" stroke-width="1.5"/></svg>
+          <input type="search" id="q" placeholder="Search set, reference or name" autocomplete="off">
+          <kbd aria-hidden="true">/</kbd>
+        </div>
+
+        <label class="hidden" for="era-select">Filter by era</label>
+        <select id="era-select" class="browse__era">
+          <option value="">All eras</option>
+          <option value="base-set-era">Base Set Era</option>
+          <option value="gym-era">Gym Era</option>
+          <option value="neo-era">Neo Era</option>
+          <option value="legendary-collection">Legendary Collection</option>
+          <option value="e-reader-era">e-Reader Era</option>
+          <option value="ex-era">EX Era</option>
+          <option value="diamond-pearl-era">Diamond &amp; Pearl Era</option>
+          <option value="platinum-era">Platinum Era</option>
+          <option value="heartgold-soulsilver-era">HeartGold &amp; SoulSilver Era</option>
+          <option value="call-of-legends">Call of Legends</option>
+          <option value="black-white-era">Black &amp; White Era</option>
+          <option value="xy-era">XY Era</option>
+          <option value="sun-moon-era">Sun &amp; Moon Era</option>
+          <option value="sword-shield-era">Sword &amp; Shield Era</option>
+          <option value="scarlet-violet">Scarlet &amp; Violet</option>
+          <option value="mega-evolution-era">Mega Evolution Era</option>
+          <option value="vault-line">Vault Line</option>
+        </select>
+
+        <label class="hidden" for="sort">Order by</label>
+        <select id="sort" class="browse__sort">
+          <option value="default">Featured</option>
+          <option value="low">Price, low to high</option>
+          <option value="high">Price, high to low</option>
+          <option value="name">Name, A to Z</option>
+        </select>
+      </div>
+
+      <div class="browse__types" role="group" aria-label="Filter by product type">
+        <button class="chip" type="button" data-filter="booster-box" aria-pressed="false">Booster Boxes</button>
+        <button class="chip" type="button" data-filter="etb" aria-pressed="false">Elite Trainer Boxes</button>
+        <button class="chip" type="button" data-filter="blister" aria-pressed="false">Blister Packs</button>
+        <button class="chip" type="button" data-filter="single" aria-pressed="false">Single Cards</button>
+        <button class="chip" type="button" data-filter="special" aria-pressed="false">Premium Sets</button>
+        <button class="chip" type="button" data-filter="preorder" aria-pressed="false">Inbound</button>
+        <button class="chip" type="button" data-filter="accessories" aria-pressed="false">Vault Line</button>
+      </div>
+
+      <div class="browse__status">
+        <span class="count" id="result-count" role="status"></span>
+        <span class="era-active hidden" id="era-pill"><span id="era-active"></span><button type="button" id="era-clear" aria-label="Clear era filter">×</button></span>
+      </div>
+    </div>
+
+    <div class="grid" id="shop-grid"><!--GRID--></div>
+  </div>
+</section>

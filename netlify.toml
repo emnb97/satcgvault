@@ -1,0 +1,106 @@
+# ==========================================================
+#  S&A TCG Vault — Netlify configuration
+# ==========================================================
+
+[build]
+  # No "base" is set, so Netlify treats the repo root as the project root.
+  # For that to work, the CONTENTS of the delivered folder must sit at the
+  # repo root — package.json beside this file, not one level down. If you'd
+  # rather commit the folder whole (repo/satcgvault/…), delete the three
+  # lines below and instead set:  base = "satcgvault"
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NPM_FLAGS = "--no-audit --no-fund"
+  # .env.example holds placeholder keys, not real ones. Netlify's secrets
+  # scanner runs after a successful build and fails the deploy if it thinks
+  # it has found a credential — a documented cause of a build that compiles
+  # fine and then reports a non-zero exit.
+  SECRETS_SCAN_OMIT_PATHS = ".env.example,DESIGN-NOTE.md,HANDOVER.md,CLIENT-RESPONSE.md,CMS-SETUP.md"
+
+[functions]
+  node_bundler = "esbuild"
+  # The checkout function reads the catalogue off disk, so it has to travel
+  # with the bundle. Without this it deploys fine and 500s on first checkout.
+  included_files = ["data/products.json"]
+
+# ---------- Security headers ----------
+# CSP is deliberately tight. Nothing loads from a third party except
+# Stripe. If you add a script later you MUST add its origin here or
+# the browser will block it.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self' https://js.stripe.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://cdn.sanity.io; font-src 'self'; connect-src 'self' https://api.stripe.com https://*.apicdn.sanity.io; frame-src https://js.stripe.com https://hooks.stripe.com; form-action 'self' https://checkout.stripe.com; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=(), payment=(self \"https://checkout.stripe.com\"), interest-cohort=()"
+    Cross-Origin-Opener-Policy = "same-origin"
+
+# ---------- Caching ----------
+# CSS and JS filenames carry a content hash, so they can be cached
+# permanently — a changed file is a changed URL.
+[[headers]]
+  for = "/assets/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Images are not hashed yet; a week with revalidation is the safe setting.
+[[headers]]
+  for = "/assets/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/img/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
+
+# stock.json must never be cached — it is the live number.
+[[headers]]
+  for = "/stock.json"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# ---------- Redirects ----------
+# Tidy URLs: /product/slug works as well as /product/slug.html
+[[redirects]]
+  from = "/product/:slug"
+  to = "/product/:slug.html"
+  status = 200
+
+[[redirects]]
+  from = "/shop"
+  to = "/shop.html"
+  status = 301
+
+[[redirects]]
+  from = "/trade"
+  to = "/trade.html"
+  status = 301
+
+[[redirects]]
+  from = "/api/checkout"
+  to = "/.netlify/functions/create-checkout-session"
+  status = 200
+
+# Catch-all 404 must be last.
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404

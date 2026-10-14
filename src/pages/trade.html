@@ -1,0 +1,76 @@
+---
+{"title":"Trade & wholesale — Japanese Pokémon TCG for UK retailers | S&A TCG Vault","description":"Direct-from-Tokyo sealed Japanese Pokémon allocations at trade prices. Sealed cartons, split allocations and standing weekly orders for independent UK shops. Request the pro-forma price matrix.","priority":"0.8"}
+---
+<section class="section">
+  <div class="wrap">
+    <p class="meta ref">Trade &amp; wholesale</p>
+    <h1>Stock your shop from the vault</h1>
+    <p class="lede">The same direct-from-Tokyo allocations, priced for the counter. Send your company details and we will email the current pro-forma price matrix privately, usually the same working day.</p>
+  </div>
+</section>
+
+<section class="section section--ruled">
+  <div class="wrap argument">
+    <div>
+      <h3>Built for independents</h3>
+      <p>Sealed cartons, split allocations or standing weekly orders. We size the drop to your shop rather than making you take a pallet to get a price.</p>
+
+      <h3>Allocation protection</h3>
+      <p>Trade customers get first refusal on repeat sets. We would rather supply ten shops steadily than one flipper once.</p>
+
+      <h3>Off-site pricing, on purpose</h3>
+      <p>Trade prices never appear on the storefront. The matrix goes to your inbox only, so your retail customers never see your cost.</p>
+
+      <h3>Provenance you can pass on</h3>
+      <p>Licensed Japanese suppliers straight to Manchester, photographed on arrival. The consignment images are yours to show your own customers.</p>
+    </div>
+
+    <div>
+      <h3>How it works</h3>
+      <dl class="docket" style="border-top-color:var(--sumi);margin-top:1rem">
+        <div class="docket__row"><dt>Send details</dt><dd>Company name, contact, business email and rough monthly volume.</dd></div>
+        <div class="docket__row"><dt>We verify</dt><dd>A Companies House number, a VAT number or a trading address is usually enough.</dd></div>
+        <div class="docket__row"><dt>Matrix arrives</dt><dd>Pro-forma pricing by set and carton quantity, emailed privately.</dd></div>
+        <div class="docket__row"><dt>Standing order</dt><dd>Tell us the lines you want weekly and we hold them before retail sees them.</dd></div>
+      </dl>
+
+      <div class="note">
+        <p><strong>Trade orders are invoiced, not checked out.</strong> Wholesale runs on pro-forma invoice and bank transfer rather than the retail basket. Buy-now-pay-later is consumer credit and is not available on trade accounts.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="trade" id="matrix">
+  <div class="wrap trade__grid">
+    <div>
+      <h2>Request the price matrix</h2>
+      <p>Sent privately by email. We supply verified UK retailers and may ask for proof of trading before sending wholesale pricing. Your details are used only to respond to this enquiry.</p>
+      <p><a href="/policies/privacy.html">Privacy policy</a></p>
+    </div>
+    <div>
+      <form name="trade" method="POST" data-netlify="true" netlify-honeypot="website-url" action="/trade-received.html">
+        <input type="hidden" name="form-name" value="trade">
+        <p class="hp"><label>Leave empty <input name="website-url" tabindex="-1" autocomplete="off"></label></p>
+        <div class="field-row">
+          <div class="field"><label for="company">Company name</label><input id="company" name="company" type="text" required></div>
+          <div class="field"><label for="contact">Contact name</label><input id="contact" name="contact" type="text" autocomplete="name" required></div>
+        </div>
+        <div class="field"><label for="email">Business email</label><input id="email" name="email" type="email" autocomplete="email" required></div>
+        <div class="field-row">
+          <div class="field"><label for="vat">Company / VAT number</label><input id="vat" name="vat" type="text"></div>
+          <div class="field">
+            <label for="volume">Monthly volume</label>
+            <select id="volume" name="volume">
+              <option>1–5 sealed boxes</option>
+              <option>6–20 sealed boxes</option>
+              <option>20+ / carton quantities</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><label for="notes">What are you looking to stock?</label><textarea id="notes" name="notes"></textarea></div>
+        <button class="btn btn--block" type="submit">Request the matrix</button>
+      </form>
+    </div>
+  </div>
+</section>
