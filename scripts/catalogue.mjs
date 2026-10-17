@@ -99,3 +99,34 @@ function normalise(p) {
     })
   };
 }
+
+/* ---------- live stock overlay ---------------------------------
+   With DATABASE_URL set, Postgres owns how many of each SKU can be
+   bought. The pages are baked with that number so a rebuild always
+   matches checkout; the browser then refreshes it from /api/stock.
+   SKUs Postgres hasn't seen yet keep Sanity's opening figure. A
+   database hiccup never fails a deploy — it just bakes Sanity's. */
+export async function overlayLiveStock(products) {
+  if (!process.env.DATABASE_URL) return { live: false };
+  try {
+    const { default: postgres } = await import("postgres");
+    const url = new URL(process.env.DATABASE_URL);
+    url.searchParams.delete("channel_binding");
+    if (!["localhost", "127.0.0.1"].includes(url.hostname)) url.searchParams.set("sslmode", "require");
+    const sql = postgres(url.toString(), { max: 1, connect_timeout: 8, prepare: false, onnotice: () => {} });
+    const rows = await sql`SELECT sku, available FROM inventory`;
+    await sql.end({ timeout: 2 });
+    const map = Object.fromEntries(rows.map((r) => [r.sku, r.available]));
+    let n = 0;
+    for (const p of products) {
+      if (p.frozen || !(p.sku in map)) continue;
+      p.stock = map[p.sku];
+      n++;
+    }
+    console.log(`Stock: live from Postgres (${n} SKUs)`);
+    return { live: true };
+  } catch (err) {
+    console.warn(`Stock: Postgres unavailable at build (${err.message}) — baking Sanity figures`);
+    return { live: true };   // runtime endpoint still live; checkout still gated
+  }
+}

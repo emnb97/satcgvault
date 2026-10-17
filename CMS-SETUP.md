@@ -1,3 +1,7 @@
+> **Live stock (October 2026):** stock counts no longer live in Sanity. The "Opening stock"
+> field only seeds a brand-new line; after that, Omar receives and counts stock on the
+> Stock desk at `/vault-desk.html`, and sales take stock down automatically. See STOCK-SETUP.md.
+
 # Headless CMS — giving Omar control of the catalogue
 
 This answers section 13 of the brief properly. Omar edits products in a browser,

@@ -19,7 +19,7 @@
   # scanner runs after a successful build and fails the deploy if it thinks
   # it has found a credential — a documented cause of a build that compiles
   # fine and then reports a non-zero exit.
-  SECRETS_SCAN_OMIT_PATHS = ".env.example,DESIGN-NOTE.md,HANDOVER.md,CLIENT-RESPONSE.md,CMS-SETUP.md"
+  SECRETS_SCAN_OMIT_PATHS = ".env.example,DESIGN-NOTE.md,HANDOVER.md,CLIENT-RESPONSE.md,CMS-SETUP.md,STOCK-SETUP.md,tests/inventory.test.mjs"
 
 [functions]
   node_bundler = "esbuild"
@@ -28,13 +28,14 @@
   included_files = ["data/products.json"]
 
 # ---------- Security headers ----------
-# CSP is deliberately tight. Nothing loads from a third party except
-# Stripe. If you add a script later you MUST add its origin here or
-# the browser will block it.
+# CSP is deliberately tight. Third parties allowed: Stripe (checkout)
+# and Trustpilot (review widget, provenance page — only loaded when
+# TRUSTPILOT_LIVE=on). If you add a script later you MUST add its
+# origin here or the browser will block it.
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src 'self' https://js.stripe.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://cdn.sanity.io; font-src 'self'; connect-src 'self' https://api.stripe.com https://*.apicdn.sanity.io; frame-src https://js.stripe.com https://hooks.stripe.com; form-action 'self' https://checkout.stripe.com; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' https://js.stripe.com https://widget.trustpilot.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://cdn.sanity.io; font-src 'self'; connect-src 'self' https://api.stripe.com https://*.apicdn.sanity.io https://widget.trustpilot.com; frame-src https://js.stripe.com https://hooks.stripe.com https://widget.trustpilot.com; form-action 'self' https://checkout.stripe.com; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
     X-Content-Type-Options = "nosniff"
     X-Frame-Options = "DENY"
@@ -66,7 +67,8 @@
   [headers.values]
     Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
 
-# stock.json must never be cached — it is the live number.
+# stock.json is the fallback when live stock (DATABASE_URL) is off.
+# With it on, pages read /api/stock instead (15s CDN cache, set in the function).
 [[headers]]
   for = "/stock.json"
   [headers.values]

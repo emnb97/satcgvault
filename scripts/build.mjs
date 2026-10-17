@@ -6,7 +6,7 @@
    ============================================================ */
 import { readFile, writeFile, mkdir, readdir, cp, rm } from "node:fs/promises";
 import path from "node:path";
-import { loadCatalogue } from "./catalogue.mjs";
+import { loadCatalogue, overlayLiveStock } from "./catalogue.mjs";
 import { createHash } from "node:crypto";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
@@ -54,7 +54,7 @@ function squeeze(html) {
     .trim();
 }
 
-function shell({ title, description, url, body, jsonld = [], bodyClass = "", noindex = false }) {
+function shell({ title, description, url, body, jsonld = [], bodyClass = "", noindex = false, extraHead = "" }) {
   const canonical = SITE + url;
   const robots = noindex || !IS_PROD ? "noindex, nofollow" : "index, follow, max-image-preview:large";
   return `<!doctype html>
@@ -83,9 +83,9 @@ function shell({ title, description, url, body, jsonld = [], bodyClass = "", noi
 <link rel="preload" href="/assets/fonts/gothic-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="${ASSETS.css}" as="style">
 <link rel="stylesheet" href="${ASSETS.css}">
-<script>window.VAULT_STOCK_ENDPOINT="/stock.json";</script>
+<meta name="vault-stock-endpoint" content="${LIVE ? "/api/stock" : "/stock.json"}">
 <script src="${ASSETS.js}" defer></script>
-${jsonld.map((j) => `<script type="application/ld+json">${JSON.stringify(j)}</script>`).join("\n")}
+${extraHead}${jsonld.map((j) => `<script type="application/ld+json">${JSON.stringify(j)}</script>`).join("\n")}
 </head>
 <body${bodyClass ? ` class="${bodyClass}"` : ""}>
 <a class="skip" href="#main">Skip to content</a>
@@ -345,6 +345,55 @@ function statusLine(p) {
   return `<span class="state">In the vault</span> — dispatched within 48 hours`;
 }
 
+/* Tells the live-stock script how to word a refreshed number, and to
+   leave withdrawn lines alone (Postgres doesn't know about a freeze). */
+const liveAttrs = (p) => p.frozen ? ` data-live-off="1"` : p.preorder ? ` data-live-kind="inbound"` : "";
+
+/* ---------- Trustpilot ---------------------------------------
+   Omar's TrustBox is the REVIEW COLLECTOR (template 56278e9a…): a
+   "Review us on Trustpilot" button. It shows no star rating and no
+   review count, so it can never look empty — safe to run from day
+   one. When there are enough reviews to show off, swap in a display
+   template (Mini, Carousel…) with TRUSTPILOT_TEMPLATE_ID and its
+   height, and change the copy in trustpilot() below.
+
+   These IDs are public: they sit in the page HTML for anyone to read.
+   Switch off with TRUSTPILOT_LIVE=off in Netlify — the page then makes
+   no request to Trustpilot at all.
+   TrustBox renders inside Trustpilot's own iframe; we style the frame
+   around it, not the button itself. */
+const TP = {
+  live: process.env.TRUSTPILOT_LIVE !== "off",
+  bu: process.env.TRUSTPILOT_BUSINESS_UNIT_ID || "6acd65afeb5b17997e5ebad3",
+  template: process.env.TRUSTPILOT_TEMPLATE_ID || "56278e9abfbbba0bdcd568bc",
+  token: process.env.TRUSTPILOT_TOKEN ?? "65783787-cc6d-46a1-b344-e1c6e8a27ce6",
+  height: process.env.TRUSTPILOT_HEIGHT || "52px",
+  profile: process.env.TRUSTPILOT_PROFILE_URL || "https://uk.trustpilot.com/review/satcgvault.co.uk"
+};
+const TP_ON = TP.live && TP.bu && TP.template;
+const TP_SCRIPT = `<script src="https://widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" async></script>\n`;
+
+function trustpilot() {
+  if (!TP_ON) return "";
+  return `<section class="section section--ruled tp">
+  <div class="wrap tp__grid">
+    <div class="section__head tp__head">
+      <h2>Bought from the vault?</h2>
+      <p class="jp" style="color:var(--shu);letter-spacing:.34em;font-size:.86rem;margin:-.4rem 0 .8rem">お客様の声</p>
+      <p>Tell the next buyer how it arrived. Reviews are collected and published by Trustpilot, not by us — we can reply to them, but we can’t edit or remove them.</p>
+    </div>
+    <div class="tp__plate">
+      <span class="tp__seal" aria-hidden="true">第三者</span>
+      <p class="tp__line">Seal intact? Parcel filmed? Say so where it counts.</p>
+      <div class="trustpilot-widget" data-locale="en-GB" data-template-id="${esc(TP.template)}"
+           data-businessunit-id="${esc(TP.bu)}" data-style-height="${esc(TP.height)}" data-style-width="100%"${TP.token ? ` data-token="${esc(TP.token)}"` : ""}>
+        <a class="tp__fallback" href="${esc(TP.profile)}" target="_blank" rel="noopener">Review us on Trustpilot</a>
+      </div>
+    </div>
+  </div>
+</section>`;
+}
+
 /* ---------- product page ---------- */
 function productPage(p, cfg) {
   const url = `/product/${p.slug}.html`;
@@ -390,11 +439,11 @@ function productPage(p, cfg) {
           <span class="price" style="font-size:var(--t-xl)">${gbp(p.pricePence)}</span>
           <span class="meta">${p.packs ? "per sealed box" : "each"}, inc. VAT</span>
         </p>
-        <p class="meta" style="font-size:var(--t-sm);margin-bottom:1.75rem" data-live-stock="${esc(p.sku)}" data-level="${inStock ? (p.stock <= 5 ? "low" : "ok") : "none"}">${statusLine(p)}</p>
+        <p class="meta" style="font-size:var(--t-sm);margin-bottom:1.75rem" data-live-stock="${esc(p.sku)}"${liveAttrs(p)} data-level="${inStock ? (p.stock <= 5 ? "low" : "ok") : "none"}">${statusLine(p)}</p>
 
         <form id="pdp-form"
               data-sku="${esc(p.sku)}" data-name="${esc(p.name)}" data-price="${p.pricePence}"
-              data-image="${img}" data-url="${url}" data-stock="${p.stock}">
+              data-image="${img}" data-url="${url}" data-stock="${p.stock}"${p.frozen ? ' data-frozen="1"' : ""}${p.preorder ? ' data-preorder="1"' : ""}>
           <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center">
             <div class="qty">
               <button type="button" data-step="-1" aria-label="Decrease quantity">−</button>
@@ -507,7 +556,7 @@ function card(p) {
     <span class="meta">${esc(p.type)}${p.packs ? `, ${p.packs} packs` : ""} · ${esc(p.language)}</span>
     <div class="card__foot">
       <span class="price">${gbp(p.pricePence)}</span>
-      <span class="stock" data-live-stock="${esc(p.sku)}" data-level="${inStock ? (p.stock <= 5 ? "low" : "ok") : "none"}">${inStock ? (p.preorder ? "Inbound" : p.stock + " available") : "Sold"}</span>
+      <span class="stock" data-live-stock="${esc(p.sku)}"${liveAttrs(p)} data-level="${inStock ? (p.stock <= 5 ? "low" : "ok") : "none"}">${inStock ? (p.preorder ? "Inbound" : p.stock + " available") : "Sold"}</span>
     </div>
   </div>
 </a>`;
@@ -527,7 +576,7 @@ function lot(p) {
   </div>
   <div class="lot__side">
     <span class="lot__price">${gbp(p.pricePence)}</span>
-    <span class="meta" data-live-stock="${esc(p.sku)}">${statusLine(p)}</span>
+    <span class="meta" data-live-stock="${esc(p.sku)}"${liveAttrs(p)}>${statusLine(p)}</span>
   </div>
 </a>`;
 }
@@ -625,6 +674,7 @@ function parse(raw) {
 /* ---------- run ---------- */
 const cfg = await loadCatalogue();
 const products = cfg.products;
+const LIVE = (await overlayLiveStock(products)).live;
 
 
 /* Lot numbers are assigned once, in catalogue order, and are the
@@ -720,6 +770,12 @@ for (const f of files) {
   if (html.includes("<!--LEDGER-->")) {
     html = html.replace("<!--LEDGER-->", ledger(cfg.consignments || []));
   }
+  let extraHead = "";
+  if (html.includes("<!--TRUSTPILOT-->")) {
+    const block = trustpilot();
+    html = html.replace("<!--TRUSTPILOT-->", block);
+    if (block) extraHead = TP_SCRIPT;
+  }
   if (html.includes("<!--FEATURED-->")) {
     html = html.replace("<!--FEATURED-->", products.filter((p) => p.stock > 0).slice(0, 4).map(lot).join("\n"));
   }
@@ -762,7 +818,7 @@ for (const f of files) {
 
   await mkdir(path.dirname(path.join(DIST, out)), { recursive: true });
   await writeFile(path.join(DIST, out), squeeze(shell({
-    title: meta.title, description: meta.description, url, body: html, jsonld, noindex: !!meta.noindex
+    title: meta.title, description: meta.description, url, body: html, jsonld, noindex: !!meta.noindex, extraHead
   })));
   if (!meta.noindex && !meta.nositemap) urls.push({ loc: url, pri: meta.priority || "0.6" });
 }
@@ -784,7 +840,7 @@ ${urls.map((u) => `  <url><loc>${SITE}${u.loc}</loc><lastmod>${today}</lastmod><
 `);
 
 await writeFile(path.join(DIST, "robots.txt"), IS_PROD
-  ? `User-agent: *\nAllow: /\nDisallow: /cart.html\nDisallow: /order-confirmed.html\nDisallow: /checkout-cancelled.html\n\nSitemap: ${SITE}/sitemap.xml\n`
+  ? `User-agent: *\nAllow: /\nDisallow: /cart.html\nDisallow: /order-confirmed.html\nDisallow: /checkout-cancelled.html\nDisallow: /vault-desk.html\n\nSitemap: ${SITE}/sitemap.xml\n`
   : `# Non-production deploy — nothing here should be indexed.\nUser-agent: *\nDisallow: /\n`);
 
 console.log(`Built ${urls.length} pages -> dist  (site: ${SITE}, production: ${IS_PROD})`);

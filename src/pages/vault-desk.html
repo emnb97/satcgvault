@@ -1,0 +1,41 @@
+---
+{"title":"Stock desk | S&A TCG Vault","description":"Internal stock desk.","noindex":true,"nositemap":true}
+---
+<section class="section desk-section">
+  <div class="wrap desk" id="desk">
+    <header class="desk__head">
+      <h1>Stock desk</h1>
+      <p class="meta desk__lede">What can be bought right now, straight from the vault's live count. A change here is live at checkout the moment you save it.</p>
+    </header>
+
+    <form class="desk__gate" id="desk-gate" autocomplete="on">
+      <div class="field">
+        <label for="desk-key">Desk key</label>
+        <input id="desk-key" name="password" type="password" autocomplete="current-password" required>
+      </div>
+      <button class="btn" type="submit"><span>Open the desk</span></button>
+      <p class="meta desk__err" id="desk-gate-err" role="alert"></p>
+    </form>
+
+    <div class="desk__body" id="desk-body" hidden>
+      <div class="desk__bar">
+        <div class="field desk__search">
+          <label for="desk-q">Find a line</label>
+          <input id="desk-q" type="search" placeholder="Name or code" autocomplete="off">
+        </div>
+        <button class="btn btn--quiet" type="button" id="desk-rebuild" hidden><span>Refresh shop pages</span></button>
+        <button class="btn btn--quiet" type="button" id="desk-lock"><span>Lock</span></button>
+      </div>
+
+      <p class="meta desk__key">
+        <span class="desk__chip desk__chip--held"></span>in an open checkout — comes back by itself if they don’t pay
+        <span class="desk__chip desk__chip--settle"></span>Klarna or Clearpay still settling
+      </p>
+
+      <ol class="desk__list" id="desk-list" aria-live="polite"></ol>
+
+      <h2 class="desk__h2">Recent stock moves</h2>
+      <ol class="desk__log" id="desk-log"></ol>
+    </div>
+  </div>
+</section>

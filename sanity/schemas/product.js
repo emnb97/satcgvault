@@ -76,8 +76,11 @@ export default {
       validation: (R) => R.required().integer().positive()
     },
     {
-      name: "stock", title: "Stock on hand", type: "number", group: "stock",
-      description: "Set to 0 to sell out a line without hiding it.",
+      /* Field name kept as "stock" so no data migration is needed.
+         Live stock lives in Postgres; this only seeds a brand-new line. */
+      name: "stock", title: "Opening stock (new lines only)", type: "number", group: "stock",
+      description: "Used once, the first time this line goes on sale. After that the live count is kept on the Stock desk (satcgvault.co.uk/vault-desk.html) and goes down by itself as orders are paid — changing this number does nothing for a line that's already selling. To stop sales, use Freeze below.",
+      initialValue: 0,
       validation: (R) => R.required().integer().min(0)
     },
     {
@@ -127,10 +130,12 @@ export default {
     { name: "detail", title: "Full description", type: "text", rows: 6, group: "detail" }
   ],
   preview: {
-    select: { title: "name", subtitle: "type", media: "images.0", stock: "stock", frozen: "frozen" },
-    prepare: ({ title, subtitle, media, stock, frozen }) => ({
+    /* No stock number here: Sanity's figure is only the opening stock,
+       and showing it would contradict the live count on the Stock desk. */
+    select: { title: "name", subtitle: "type", media: "images.0", frozen: "frozen", availability: "availability" },
+    prepare: ({ title, subtitle, media, frozen, availability }) => ({
       title: `${title} — ${subtitle}`,
-      subtitle: frozen ? "FROZEN" : stock > 0 ? `${stock} in the vault` : "Sold out",
+      subtitle: frozen ? "FROZEN" : ({ stock: "In the vault", inbound: "Inbound (pre-order)", sourced: "Teaser only", hidden: "Hidden" })[availability] || "",
       media
     })
   }

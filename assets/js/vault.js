@@ -392,8 +392,19 @@
       })
         .then(function (r) { return r.json(); })
         .then(function (data) {
-          if (data && data.url) { window.location.href = data.url; }
-          else { throw new Error(data && data.error || "No session returned"); }
+          if (data && data.url) { window.location.href = data.url; return; }
+          /* Short on stock: the server says exactly how many are left,
+             so trim the bag to match rather than leave the shopper
+             guessing. 0 removes the line. */
+          if (data && data.sku && typeof data.available === "number") {
+            Cart.setQty(data.sku, data.available);
+            render();
+            go.disabled = false;
+            go.textContent = "Checkout";
+            toast(data.error);
+            return;
+          }
+          throw new Error(data && data.error || "No session returned");
         })
         .catch(function (err) {
           go.disabled = false;
@@ -1015,9 +1026,12 @@
   }
 
   /* ---------- live stock -----------------------------------
-     Pages are static, so the stock number baked into the HTML
-     can be minutes old. If a CMS endpoint is configured we
-     refresh the numbers on load. Fails silently if not. */
+     Pages are static, so the number baked into the HTML can be
+     minutes old. With live stock on, VAULT_STOCK_ENDPOINT is
+     /api/stock (Postgres, 15s CDN cache) and this brings every
+     count — and the buy button — up to date on load. Checkout
+     never trusts this number; it takes stock atomically itself.
+     Withdrawn lines (data-live-off) are left as baked. */
   function initLiveStock() {
     var nodes = $$("[data-live-stock]");
     if (!nodes.length || !window.VAULT_STOCK_ENDPOINT) return;
@@ -1027,22 +1041,200 @@
         if (!map) return;
         nodes.forEach(function (el) {
           var sku = el.getAttribute("data-live-stock");
-          if (!(sku in map)) return;
+          if (!(sku in map) || el.hasAttribute("data-live-off")) return;
           var n = map[sku];
-          el.textContent = n > 0 ? n + " in the vault" : "Sold out";
+          var inbound = el.getAttribute("data-live-kind") === "inbound";
+          el.textContent = n > 0 ? (inbound ? "Inbound \u00b7 " + n + " left" : n + " in the vault") : "Sold out";
           el.setAttribute("data-level", n === 0 ? "none" : n <= 5 ? "low" : "ok");
-          var form = $("#pdp-form");
-          if (form && form.dataset.sku === sku) {
-            var submit = $("button[type=submit]", form);
-            if (n === 0 && submit) { submit.disabled = true; submit.textContent = "Sold out"; }
-          }
         });
+        var form = $("#pdp-form");
+        if (form && form.dataset.sku in map && !form.dataset.frozen) {
+          var n = map[form.dataset.sku];
+          var submit = $("button[type=submit]", form);
+          var label = submit && ($("span", submit) || submit);
+          var qty = $("#qty", form);
+          form.dataset.stock = String(n);
+          if (qty) {
+            qty.max = String(Math.max(n, 1));
+            if (n > 0 && parseInt(qty.value, 10) > n) qty.value = String(n);
+          }
+          if (submit) {
+            submit.disabled = n === 0;
+            label.textContent = n === 0 ? "Sold out" : form.dataset.preorder ? "Reserve this allocation" : "Add to bag";
+          }
+        }
       })
       .catch(function () { /* static numbers stand */ });
   }
 
+  /* ---------- checkout cancelled ---------------------------
+     Back out of Stripe and your units go straight back on the
+     shelf instead of sitting held for 30 minutes. The server
+     expires the Stripe session first, so this can never undo a
+     payment. Fire-and-forget: if it fails, expiry still catches it. */
+  function initCancelRelease() {
+    var m = /[?&]hold=([0-9a-f-]{36})/i.exec(window.location.search);
+    if (!m) return;
+    try { history.replaceState(null, "", window.location.pathname); } catch (e) {}
+    fetch("/api/release-checkout", {
+      method: "POST",
+      keepalive: true,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ hold: m[1] })
+    }).catch(function () {});
+  }
+
+  /* ---------- stock desk (/vault-desk.html) ----------------
+     Omar's live-count tool. Talks to /api/desk with the desk key;
+     the key is remembered on this device until "Lock". Each save
+     goes straight to Postgres, so it's live at checkout at once. */
+  function initDesk() {
+    var root = $("#desk");
+    if (!root) return;
+    var KEY = "vault-desk-key";
+    var gate = $("#desk-gate"), body = $("#desk-body"), list = $("#desk-list"), logEl = $("#desk-log");
+    var q = $("#desk-q"), rebuild = $("#desk-rebuild"), open = {};
+    var state = null;
+
+    function getKey() { try { return localStorage.getItem(KEY) || ""; } catch (e) { return ""; } }
+    function setKey(k) { try { k ? localStorage.setItem(KEY, k) : localStorage.removeItem(KEY); } catch (e) {} }
+    function h(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+    function call(method, payload) {
+      return fetch("/api/desk", {
+        method: method,
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + getKey() },
+        body: payload ? JSON.stringify(payload) : undefined,
+        cache: "no-store"
+      }).then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (d) {
+          if (r.status === 401) { lock("That key didn’t open the desk."); throw new Error("locked"); }
+          if (!r.ok) throw new Error(d.error || "The desk didn’t answer. Nothing was changed.");
+          return d;
+        });
+      });
+    }
+
+    function lock(msg) {
+      setKey("");
+      body.hidden = true; gate.hidden = false;
+      $("#desk-gate-err").textContent = msg || "";
+    }
+
+    function level(n) { return n === 0 ? "none" : n <= 3 ? "low" : "ok"; }
+    function when(t) {
+      var d = new Date(t);
+      return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" }) + " " +
+             d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+    }
+
+    function row(p) {
+      var off = p.frozen || p.availability === "sourced";
+      var flow = [];
+      if (p.held) flow.push('<span><i class="desk__chip desk__chip--held"></i>' + p.held + " in checkout</span>");
+      if (p.pending) flow.push('<span><i class="desk__chip desk__chip--settle"></i>' + p.pending + " settling</span>");
+      flow.push('<span class="meta">' + p.sold30 + " sold, 30 days</span>");
+      var tag = p.frozen ? " · frozen in Sanity" : p.availability === "sourced" ? " · teaser, not on sale" : p.availability === "inbound" ? " · pre-order" : "";
+      return '<li class="desk__item" data-sku="' + h(p.sku) + '"' + (off ? " data-off" : "") + ">" +
+        "<details" + (open[p.sku] ? " open" : "") + "><summary>" +
+          '<span class="desk__hex" data-level="' + level(p.available) + '" aria-label="' + p.available + ' available">' + p.available + "</span>" +
+          '<span><span class="desk__name">' + h(p.name) + '</span><span class="meta desk__sub">' + h(p.type || "") + " / " + h(p.sku) + h(tag) + "</span></span>" +
+          '<span class="desk__flow meta">' + flow.join("") + "</span>" +
+        "</summary>" +
+        '<div class="desk__tools">' +
+          tool("receive", "Units received", "Add to stock") +
+          tool("remove", "Units to remove", "Remove") +
+          tool("set", "Counted on the shelf", "Set count") +
+          '<div class="field desk__note"><label for="n-' + h(p.sku) + '">Note for the log <span class="muted">(optional)</span></label>' +
+            '<input id="n-' + h(p.sku) + '" data-note type="text" maxlength="120" placeholder="e.g. Consignment 14, damaged corner"></div>' +
+          '<p class="meta desk__msg" data-msg role="status"></p>' +
+        "</div></details></li>";
+      function tool(kind, label, cta) {
+        var id = kind + "-" + h(p.sku);
+        return '<div class="desk__tool"><div class="field"><label for="' + id + '">' + label + '</label>' +
+          '<input id="' + id + '" data-in="' + kind + '" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off"></div>' +
+          '<button class="btn' + (kind === "receive" ? "" : " btn--quiet") + '" type="button" data-act="' + kind + '"><span>' + cta + "</span></button></div>";
+      }
+    }
+
+    function paint() {
+      var term = (q.value || "").trim().toLowerCase();
+      var items = state.products.filter(function (p) {
+        return !term || (p.name + " " + p.sku + " " + (p.type || "")).toLowerCase().indexOf(term) > -1;
+      });
+      list.innerHTML = items.length ? items.map(row).join("")
+        : '<li class="meta" style="padding:1rem 0">No line matches “' + h(term) + '”.</li>';
+      logEl.innerHTML = state.log.length ? state.log.map(function (l) {
+        var alarm = /^OVERSOLD/.test(l.reason);
+        return "<li" + (alarm ? " data-alarm" : "") + "><time>" + when(l.at) + "</time>" +
+          "<b" + (l.delta < 0 ? " data-neg" : "") + ">" + (l.delta > 0 ? "+" : "") + l.delta + "</b>" +
+          "<span>" + h(l.sku) + " — " + h(l.reason) + (l.available_after != null ? ", now " + l.available_after : "") +
+          (l.ref && !/^[0-9a-f-]{36}$|^cs_/.test(l.ref) ? " (" + h(l.ref) + ")" : "") + "</span></li>";
+      }).join("") : '<li class="meta">Nothing has moved yet.</li>';
+      rebuild.hidden = !state.canRebuild;
+    }
+
+    function load() {
+      return call("GET").then(function (d) {
+        state = d; gate.hidden = true; body.hidden = false; paint();
+      });
+    }
+
+    gate.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      setKey($("#desk-key").value.trim());
+      $("#desk-gate-err").textContent = "";
+      load().catch(function (e) { if (e.message !== "locked") $("#desk-gate-err").textContent = e.message; });
+    });
+    $("#desk-lock").addEventListener("click", function () { lock(""); $("#desk-key").value = ""; });
+    q.addEventListener("input", function () { if (state) paint(); });
+
+    list.addEventListener("toggle", function (ev) {
+      var li = ev.target.closest && ev.target.closest(".desk__item");
+      if (li) open[li.getAttribute("data-sku")] = ev.target.open;
+    }, true);
+
+    list.addEventListener("click", function (ev) {
+      var btn = ev.target.closest && ev.target.closest("[data-act]");
+      if (!btn) return;
+      var li = btn.closest(".desk__item"), sku = li.getAttribute("data-sku");
+      var kind = btn.getAttribute("data-act");
+      var input = $('[data-in="' + kind + '"]', li), msg = $("[data-msg]", li);
+      var n = parseInt(input.value, 10);
+      if (!/^\d+$/.test(input.value.trim()) || (kind !== "set" && n === 0)) {
+        msg.setAttribute("data-tone", "bad"); msg.textContent = "Enter a whole number" + (kind === "set" ? "." : " above 0."); input.focus(); return;
+      }
+      var payload = kind === "set" ? { action: "set", sku: sku, value: n }
+        : { action: "adjust", sku: sku, value: kind === "remove" ? -n : n };
+      payload.note = $("[data-note]", li).value.trim();
+      btn.disabled = true;
+      call("POST", payload).then(function (d) {
+        state = d; open[sku] = true; paint();
+        var fresh = list.querySelector('[data-sku="' + sku + '"] [data-msg]');
+        var now = d.products.filter(function (p) { return p.sku === sku; })[0];
+        if (fresh && now) { fresh.removeAttribute("data-tone"); fresh.textContent = "Saved — " + now.available + " available now."; }
+      }).catch(function (e) {
+        btn.disabled = false;
+        if (e.message !== "locked") { msg.setAttribute("data-tone", "bad"); msg.textContent = e.message; }
+      });
+    });
+
+    rebuild.addEventListener("click", function () {
+      rebuild.disabled = true;
+      call("POST", { action: "rebuild" }).then(function (d) { toast(d.message); })
+        .catch(function (e) { if (e.message !== "locked") toast(e.message); })
+        .then(function () { setTimeout(function () { rebuild.disabled = false; }, 60000); });
+    });
+
+    if (getKey()) load().catch(function (e) { if (e.message !== "locked") lock(e.message); });
+  }
+
   /* ---------- boot ---------- */
   function boot() {
+    /* The endpoint lives in a <meta> tag, not an inline script: the CSP
+       blocks inline scripts, which silently disabled live stock before. */
+    var ep = document.querySelector('meta[name="vault-stock-endpoint"]');
+    if (ep && !window.VAULT_STOCK_ENDPOINT) window.VAULT_STOCK_ENDPOINT = ep.getAttribute("content");
     initIntro();
     initCursor();
     initScanner();
@@ -1063,6 +1255,8 @@
     initPeek();
     initVerify();
     initLedger();
+    initCancelRelease();
+    initDesk();
   }
 
   if (document.readyState === "loading") {
