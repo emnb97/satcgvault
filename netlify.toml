@@ -32,10 +32,13 @@
 # and Trustpilot (review widget, provenance page — only loaded when
 # TRUSTPILOT_LIVE=on). If you add a script later you MUST add its
 # origin here or the browser will block it.
+# The one sha256 in script-src permits the tiny inline script in every
+# page's <head> that switches on the reveal animations. Change that
+# script and the hash must change too — the build log tells you if so.
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src 'self' https://js.stripe.com https://widget.trustpilot.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://cdn.sanity.io; font-src 'self'; connect-src 'self' https://api.stripe.com https://*.apicdn.sanity.io https://widget.trustpilot.com; frame-src https://js.stripe.com https://hooks.stripe.com https://widget.trustpilot.com; form-action 'self' https://checkout.stripe.com; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'sha256-8mwg2eNoGW0meE9kgRoY4d95qd3Vv7BTO2uQOUd2CzE=' https://js.stripe.com https://widget.trustpilot.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://cdn.sanity.io; font-src 'self'; connect-src 'self' https://api.stripe.com https://*.apicdn.sanity.io https://widget.trustpilot.com; frame-src https://js.stripe.com https://hooks.stripe.com https://widget.trustpilot.com; form-action 'self' https://checkout.stripe.com; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
     X-Content-Type-Options = "nosniff"
     X-Frame-Options = "DENY"

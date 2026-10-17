@@ -836,6 +836,28 @@ for (const p of products) {
   urls.push({ loc: page.url, pri: "0.8" });
 }
 
+/* CSP guard. Inline <script>s run only if their exact sha256 is listed
+   in netlify.toml's script-src — otherwise the browser silently blocks
+   them (that is how live stock, the reveal animations and the
+   order-confirmed bag reset were all quietly broken). JSON-LD is data,
+   not script, so it's exempt. */
+{
+  const toml = await readFile(path.join(ROOT, "netlify.toml"), "utf8");
+  const missing = new Map();
+  for (const f of await readdir(DIST, { recursive: true })) {
+    if (!f.endsWith(".html")) continue;
+    const html = await readFile(path.join(DIST, f), "utf8");
+    for (const m of html.matchAll(/<script>([\s\S]*?)<\/script>/g)) {
+      const h = "sha256-" + createHash("sha256").update(m[1]).digest("base64");
+      if (!toml.includes(h)) missing.set(h, f);
+    }
+  }
+  for (const [h, f] of missing) {
+    console.warn(`\n!! CSP: an inline script in ${f} will be BLOCKED in the browser.\n!! Add '${h}' to script-src in netlify.toml (or move the script into vault.js).\n`);
+  }
+  if (!missing.size) console.log("CSP: every inline script is allowed");
+}
+
 /* sitemap + robots */
 const today = new Date().toISOString().slice(0, 10);
 await writeFile(path.join(DIST, "sitemap.xml"),

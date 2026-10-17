@@ -1,5 +1,14 @@
 # Live stock — setup and how it works
 
+> **Also in this release (no setup needed):**
+> - Delivery is charged at **£3.99, free over £50**, matching the bag page and the
+>   delivery policy. It used to charge £4.99, free only over £75. Change it in one
+>   place: `data/products.json`.
+> - The bag now empties after a paid order.
+> - The scroll-reveal animations work. They were designed in, but were blocked by
+>   the CSP until a hash was added to `netlify.toml`. The build log now warns if
+>   any inline script would be blocked.
+
 ## What changed, in one paragraph
 
 Stock used to be a number Omar typed into Sanity, and nothing changed it when
@@ -77,6 +86,12 @@ Remove-Item Env:DATABASE_URL
 - The last line clears the password from the window.
 
 It's safe to run again. It never overwrites a count that already exists.
+
+**If `npm run db:setup` won't run** (for example, a network or PowerShell problem), the
+tables can be made by hand instead. In Neon, open **SQL Editor**, paste the whole of
+`db/schema.sql`, and press **Run**. The stock figures then fill themselves in from
+Sanity the first time Omar opens the Stock desk, or the first time each line is put
+in a basket. Check them on the desk before you announce anything.
 
 ### 4. Netlify environment variables
 
