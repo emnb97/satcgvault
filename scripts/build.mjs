@@ -83,6 +83,7 @@ function shell({ title, description, url, body, jsonld = [], bodyClass = "", noi
 <link rel="preload" href="/assets/fonts/gothic-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="${ASSETS.css}" as="style">
 <link rel="stylesheet" href="${ASSETS.css}">
+<meta name="vault-shipping" content="${SHIP.free},${SHIP.std}">
 <meta name="vault-stock-endpoint" content="${LIVE ? "/api/stock" : "/stock.json"}">
 <script src="${ASSETS.js}" defer></script>
 ${extraHead}${jsonld.map((j) => `<script type="application/ld+json">${JSON.stringify(j)}</script>`).join("\n")}
@@ -675,6 +676,11 @@ function parse(raw) {
 const cfg = await loadCatalogue();
 const products = cfg.products;
 const LIVE = (await overlayLiveStock(products)).live;
+/* Delivery: ONE source — data/products.json. Checkout charges it and the
+   bag page reads it from a <meta> tag, so the two can never disagree.
+   The wording on cart.html and policies/delivery.html is fixed text:
+   change those too if these numbers ever change. */
+const SHIP = { free: cfg.freeShippingThresholdPence ?? 5000, std: cfg.standardShippingPence ?? 399 };
 
 
 /* Lot numbers are assigned once, in catalogue order, and are the

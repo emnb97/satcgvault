@@ -341,7 +341,11 @@
       }).join("");
 
       var sub = Cart.subtotal();
-      var ship = sub >= 5000 || sub === 0 ? 0 : 399;
+      /* Same figures the checkout charges (data/products.json via <meta>). */
+      var sm = document.querySelector('meta[name="vault-shipping"]');
+      var sv = (sm ? sm.getAttribute("content") : "5000,399").split(",");
+      var freeOver = parseInt(sv[0], 10) || 5000, std = parseInt(sv[1], 10) || 399;
+      var ship = sub >= freeOver || sub === 0 ? 0 : std;
       $("#sum-sub").textContent = gbp(sub);
       $("#sum-ship").textContent = ship === 0 ? "Free" : gbp(ship);
       $("#sum-total").textContent = gbp(sub + ship);
@@ -1067,6 +1071,15 @@
       .catch(function () { /* static numbers stand */ });
   }
 
+  /* ---------- order confirmed ------------------------------
+     Empty the bag once Stripe has sent the shopper back paid. This
+     used to be an inline <script> on the page, which the CSP blocks —
+     so the bag never emptied. Cart.write also resets the header count. */
+  function initOrderConfirmed() {
+    if (!$("[data-order-confirmed]")) return;
+    Cart.write([]);
+  }
+
   /* ---------- checkout cancelled ---------------------------
      Back out of Stripe and your units go straight back on the
      shelf instead of sitting held for 30 minutes. The server
@@ -1256,6 +1269,7 @@
     initVerify();
     initLedger();
     initCancelRelease();
+    initOrderConfirmed();
     initDesk();
   }
 

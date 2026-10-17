@@ -449,3 +449,17 @@ test("/api/stock serves the live map with a short CDN cache", async () => {
   assert.deepEqual(await res.json(), { [A]: 3, [B]: 0 });
   assert.match(res.headers.get("Netlify-CDN-Cache-Control"), /s-maxage=15/);
 });
+
+/* ================= delivery (must match the bag page and policy) ================= */
+
+test("delivery: £3.99 under £50, free at exactly £50", async () => {
+  const E = "SATV-ACR-ETB";           // £25.00
+  await setStock(E, 10);
+  const one = await openCheckout([{ sku: E, qty: 1 }]);
+  const rate1 = one.session._params.shipping_options[0].shipping_rate_data;
+  assert.equal(rate1.fixed_amount.amount, 399);
+  const two = await openCheckout([{ sku: E, qty: 2 }]);
+  const rate2 = two.session._params.shipping_options[0].shipping_rate_data;
+  assert.equal(rate2.fixed_amount.amount, 0);
+  assert.equal(rate2.display_name, "Tracked 48 — free over £50");
+});

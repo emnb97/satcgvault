@@ -1,7 +1,7 @@
 {
   "currency": "GBP",
-  "freeShippingThresholdPence": 7500,
-  "standardShippingPence": 499,
+  "freeShippingThresholdPence": 5000,
+  "standardShippingPence": 399,
   "products": [
     {
       "sku": "SATV-M6A-30TH",
