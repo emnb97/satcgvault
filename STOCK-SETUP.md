@@ -103,10 +103,12 @@ in a basket. Check them on the desk before you announce anything.
 | `DESK_KEY` | a long random key, see below | Tick secret. This is Omar's password for the Stock desk |
 | `NETLIFY_BUILD_HOOK` | *(optional)* see below | Lets the desk's "Refresh shop pages" button work |
 
-To generate a 32-character desk key in PowerShell:
+To generate a strong desk key in PowerShell (Windows' secure random generator):
 
 ```powershell
--join ((48..57)+(65..90)+(97..122) | Get-Random -Count 32 | ForEach-Object {[char]$_})
+$b = New-Object byte[] 24
+[Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($b)
+([Convert]::ToBase64String($b) -replace '[+/=]','')
 ```
 
 Give the key to Omar privately, not over Instagram DMs. The desk refuses any key shorter than 16 characters.
