@@ -1,0 +1,9 @@
+# Keep LF line endings on every machine (Git for Windows would otherwise
+# convert to CRLF on checkout, which broke the page front-matter parser).
+* text=auto eol=lf
+*.webp binary
+*.png binary
+*.jpg binary
+*.woff2 binary
+*.ico binary
+*.zip binary

@@ -639,6 +639,9 @@ function ledger(records) {
 
 /* ---------- front matter parser ---------- */
 function parse(raw) {
+  /* Windows Git can check files out with CRLF line endings; normalise so
+     the front matter is found either way. */
+  raw = raw.replace(/\r\n/g, "\n");
   const m = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
   if (!m) throw new Error("Missing front matter");
   return { meta: JSON.parse(m[1]), body: m[2] };
