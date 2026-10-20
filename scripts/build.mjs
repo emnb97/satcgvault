@@ -7,6 +7,7 @@
 import { readFile, writeFile, mkdir, readdir, cp, rm } from "node:fs/promises";
 import path from "node:path";
 import { loadCatalogue, overlayLiveStock } from "./catalogue.mjs";
+import { ERAS } from "./eras.mjs";
 import { createHash } from "node:crypto";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
@@ -146,23 +147,7 @@ function header(current) {
           <div class="mega__col mega__col--eras">
             <h3 class="mega__h">By era</h3>
             <div class="mega__eras">
-        <a href="/shop.html?era=base-set-era" data-era-filter="base-set-era">Base Set Era</a>
-        <a href="/shop.html?era=gym-era" data-era-filter="gym-era">Gym Era</a>
-        <a href="/shop.html?era=neo-era" data-era-filter="neo-era">Neo Era</a>
-        <a href="/shop.html?era=legendary-collection" data-era-filter="legendary-collection">Legendary Collection</a>
-        <a href="/shop.html?era=e-reader-era" data-era-filter="e-reader-era">e-Reader Era</a>
-        <a href="/shop.html?era=ex-era" data-era-filter="ex-era">EX Era</a>
-        <a href="/shop.html?era=diamond-pearl-era" data-era-filter="diamond-pearl-era">Diamond & Pearl Era</a>
-        <a href="/shop.html?era=platinum-era" data-era-filter="platinum-era">Platinum Era</a>
-        <a href="/shop.html?era=heartgold-soulsilver-era" data-era-filter="heartgold-soulsilver-era">HeartGold & SoulSilver Era</a>
-        <a href="/shop.html?era=call-of-legends" data-era-filter="call-of-legends">Call of Legends</a>
-        <a href="/shop.html?era=black-white-era" data-era-filter="black-white-era">Black & White Era</a>
-        <a href="/shop.html?era=xy-era" data-era-filter="xy-era">XY Era</a>
-        <a href="/shop.html?era=sun-moon-era" data-era-filter="sun-moon-era">Sun & Moon Era</a>
-        <a href="/shop.html?era=sword-shield-era" data-era-filter="sword-shield-era">Sword & Shield Era</a>
-        <a href="/shop.html?era=scarlet-violet" data-era-filter="scarlet-violet">Scarlet & Violet</a>
-        <a href="/shop.html?era=mega-evolution-era" data-era-filter="mega-evolution-era">Mega Evolution Era</a>
-        <a href="/shop.html?era=vault-line" data-era-filter="vault-line">Vault Line</a>
+${eraLinks()}
             </div>
           </div>
         </div>
@@ -685,6 +670,14 @@ const LIVE = (await overlayLiveStock(products)).live;
    change those too if these numbers ever change. */
 const SHIP = { free: cfg.freeShippingThresholdPence ?? 5000, std: cfg.standardShippingPence ?? 399 };
 
+/* Eras for the menu and the shop dropdown: the fixed list, then any
+   era a product uses that the list doesn't know yet. */
+const ERA_LIST = [...ERAS, ...[...new Set(products.map((p) => p.era).filter(Boolean))].filter((e) => !ERAS.includes(e))];
+const eraLinks = () => ERA_LIST.map((e) =>
+  `        <a href="/shop.html?era=${eraSlug(e)}" data-era-filter="${eraSlug(e)}">${esc(e)}</a>`).join("\n");
+const eraOptions = () => ERA_LIST.map((e) =>
+  `          <option value="${eraSlug(e)}">${esc(e)}</option>`).join("\n");
+
 
 /* Lot numbers are assigned once, in catalogue order, and are the
    reference a trade customer quotes back to us on the phone. */
@@ -785,6 +778,7 @@ for (const f of files) {
     html = html.replace("<!--TRUSTPILOT-->", block);
     if (block) extraHead = TP_SCRIPT;
   }
+  if (html.includes("<!--ERA_OPTIONS-->")) html = html.replace("<!--ERA_OPTIONS-->", eraOptions());
   if (html.includes("<!--FEATURED-->")) {
     html = html.replace("<!--FEATURED-->", products.filter((p) => p.stock > 0).slice(0, 4).map(lot).join("\n"));
   }

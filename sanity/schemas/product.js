@@ -40,8 +40,11 @@ export default {
         "e-Reader Era", "EX Era", "Diamond & Pearl Era", "Platinum Era",
         "HeartGold & SoulSilver Era", "Call of Legends", "Black & White Era",
         "XY Era", "Sun & Moon Era", "Sword & Shield Era", "Scarlet & Violet",
-        "Mega Evolution Era", "Vault Line"
+        "Mega Evolution Era",
+        "30th Celebration", "Mystery Pouches", "Chinese",
+        "Vault Line"
       ] },
+      description: "How customers browse to it in the menu. Pick the line it belongs to — set Product type and Shop category below as normal, so a 30th Celebration booster box still shows under Booster Boxes too.",
       validation: (R) => R.required()
     },
     { name: "set", title: "Series", type: "string", group: "listing" },
@@ -60,7 +63,7 @@ export default {
     },
     {
       name: "language", title: "Language", type: "string", group: "listing",
-      options: { list: ["Japanese", "English", "N/A"] }, initialValue: "Japanese"
+      options: { list: ["Japanese", "English", "Chinese", "N/A"] }, initialValue: "Japanese"
     },
     {
       name: "images", title: "Photographs", type: "array", group: "listing",
