@@ -5,14 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "sanity dev",
-    "deploy": "sanity deploy"
+    "deploy": "sanity deploy",
+    "build": "sanity build"
   },
   "dependencies": {
-    "sanity": "^3.99.0",
-    "react": "^19.2.2",
-    "react-dom": "^19.2.2",
-    "styled-components": "^6.1.13",
-    "@sanity/orderable-document-list": "^1.2.2",
-    "@sanity/cli": "^3.99.0"
+    "sanity": "6.18.0",
+    "@sanity/orderable-document-list": "2.0.25",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "styled-components": "6.5.3"
   }
 }

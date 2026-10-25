@@ -132,6 +132,7 @@ async function logOrder(session) {
     id: session.id,
     email: session.customer_details?.email,
     total: session.amount_total,
+    delivery: session.shipping_cost?.amount_total,   // which service: see the payment in Stripe
     method: session.payment_method_types,
     lines: items.data.map((l) => `${l.quantity} × ${l.description}`)
   });

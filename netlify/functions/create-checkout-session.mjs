@@ -101,8 +101,13 @@ export default async (request) => {
     }
   }
 
-  const shipping = subtotal >= catalogue.freeShippingThresholdPence ? 0 : catalogue.standardShippingPence;
+  /* Delivery (data/products.json): Royal Mail Tracked 48, free over the
+     threshold; Royal Mail Tracked 24 for next working day, always charged.
+     The shopper picks one on Stripe's page; Tracked 48 is listed first, so
+     it's the default. */
+  const free48 = subtotal >= catalogue.freeShippingThresholdPence;
   const freeOver = "£" + (catalogue.freeShippingThresholdPence / 100).toFixed(0);
+  const nextDay = catalogue.nextDayShippingPence ?? 699;
 
   try {
     const session = await stripe().checkout.sessions.create({
@@ -116,17 +121,30 @@ export default async (request) => {
       billing_address_collection: "required",
       shipping_address_collection: { allowed_countries: ["GB"] },
       phone_number_collection: { enabled: true },
-      shipping_options: [{
-        shipping_rate_data: {
-          type: "fixed_amount",
-          display_name: shipping === 0 ? `Tracked 48 — free over ${freeOver}` : "Tracked 48",
-          fixed_amount: { amount: shipping, currency: "gbp" },
-          delivery_estimate: {
-            minimum: { unit: "business_day", value: 2 },
-            maximum: { unit: "business_day", value: 3 }
+      shipping_options: [
+        {
+          shipping_rate_data: {
+            type: "fixed_amount",
+            display_name: free48 ? `Royal Mail Tracked 48 — free over ${freeOver}` : "Royal Mail Tracked 48",
+            fixed_amount: { amount: free48 ? 0 : catalogue.standardShippingPence, currency: "gbp" },
+            delivery_estimate: {
+              minimum: { unit: "business_day", value: 2 },
+              maximum: { unit: "business_day", value: 3 }
+            }
+          }
+        },
+        {
+          shipping_rate_data: {
+            type: "fixed_amount",
+            display_name: "Royal Mail Tracked 24 — next working day",
+            fixed_amount: { amount: nextDay, currency: "gbp" },
+            delivery_estimate: {
+              minimum: { unit: "business_day", value: 1 },
+              maximum: { unit: "business_day", value: 1 }
+            }
           }
         }
-      }],
+      ],
       consent_collection: { terms_of_service: "required" },
       custom_text: {
         terms_of_service_acceptance: {

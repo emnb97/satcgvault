@@ -130,3 +130,53 @@ export async function overlayLiveStock(products) {
     return { live: true };   // runtime endpoint still live; checkout still gated
   }
 }
+
+/* ---------- catalogue check ------------------------------------
+   Prints a to-do list in the build log: products a customer would
+   see with something missing or contradictory. It never fails the
+   build — it's a list for Omar to work through in Sanity.
+   Keep TYPE_CATEGORIES in step with the warning in
+   sanity/schemas/product.js. */
+export const TYPE_CATEGORIES = {
+  "Booster Box": ["booster-box", "special", "preorder"],
+  "High Class Box": ["booster-box", "special", "preorder"],
+  "Elite Trainer Box": ["etb", "preorder"],
+  "Blister Pack": ["blister", "preorder"],
+  "Single Card": ["single"],
+  "Twin Set": ["special", "preorder"],
+  "Special Set": ["special", "preorder"],
+  "Mystery Pouch": ["special", "preorder"],
+  "Display Case": ["accessories"],
+  "Accessory": ["accessories"]
+};
+const NO_SET = new Set(["Display Case", "Accessory"]);
+
+export function checkCatalogue(products) {
+  const issues = [];
+  const add = (p, msg) => issues.push(`  ${p.name || "(no name)"} [${p.sku || "no SKU"}]: ${msg}`);
+  const seen = new Map();
+  for (const p of products) {
+    const key = `${(p.name || "").trim().toLowerCase()}|${p.type}`;
+    if (seen.has(key)) add(p, `same name and type as ${seen.get(key)} — duplicate?`);
+    else seen.set(key, p.sku);
+    if (!p.images || !p.images.length) add(p, "no photograph — showing a drawn placeholder");
+    if (!p.category) add(p, "no shop category — won't appear under any filter");
+    else if (TYPE_CATEGORIES[p.type] && !TYPE_CATEGORIES[p.type].includes(p.category)) {
+      add(p, `type "${p.type}" filed under category "${p.category}"`);
+    }
+    if (!TYPE_CATEGORIES[p.type]) add(p, `unrecognised product type "${p.type ?? ""}"`);
+    if (!NO_SET.has(p.type)) {
+      if (!p.code) add(p, "no set code");
+      if (!p.set) add(p, "no series");
+    }
+    if (!p.language) add(p, "no language");
+    if (!p.summary) add(p, "no short description");
+    if (!p.dispatch && p.availability !== "sourced") add(p, "no dispatch line");
+    for (const [k, v] of Object.entries(p)) {
+      if (typeof v === "string" && /^(null|undefined|\[.*\])$/i.test(v.trim())) add(p, `field "${k}" contains "${v}"`);
+    }
+  }
+  if (issues.length) console.log(`Catalogue check: ${issues.length} thing(s) for Omar to fix in Sanity:\n${issues.join("\n")}`);
+  else console.log("Catalogue check: all products complete");
+  return issues;
+}

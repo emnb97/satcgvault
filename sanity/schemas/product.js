@@ -1,4 +1,23 @@
 import { orderRankField } from "@sanity/orderable-document-list";
+
+/* Which shop categories make sense for each product type. Sanity shows a
+   warning (not a block) when they don't match — e.g. a single card filed
+   under accessories. Keep in step with TYPE_CATEGORIES in scripts/catalogue.mjs. */
+const TYPE_CATEGORIES = {
+  "Booster Box": ["booster-box", "special", "preorder"],
+  "High Class Box": ["booster-box", "special", "preorder"],
+  "Elite Trainer Box": ["etb", "preorder"],
+  "Blister Pack": ["blister", "preorder"],
+  "Single Card": ["single"],
+  "Twin Set": ["special", "preorder"],
+  "Special Set": ["special", "preorder"],
+  "Mystery Pouch": ["special", "preorder"],
+  "Display Case": ["accessories"],
+  "Accessory": ["accessories"]
+};
+const NO_SET = ["Display Case", "Accessory"];
+const needsSet = (label) => (R) => R.custom((value, { document }) =>
+  value || NO_SET.includes(document?.type) ? true : `Add the ${label} — it shows on the product page.`).warning();
 /* ============================================================
    Sanity schema — the vault catalogue.
    Omar edits here; the site rebuilds automatically on publish.
@@ -21,7 +40,7 @@ export default {
     },
     {
       name: "type", title: "Product type", type: "string", group: "listing",
-      options: { list: ["Booster Box", "High Class Box", "Twin Set", "Special Set", "Display Case", "Accessory"] },
+      options: { list: ["Booster Box", "High Class Box", "Elite Trainer Box", "Blister Pack", "Single Card", "Twin Set", "Special Set", "Mystery Pouch", "Display Case", "Accessory"] },
       initialValue: "Booster Box",
       validation: (R) => R.required()
     },
@@ -32,7 +51,7 @@ export default {
       validation: (R) => R.required()
     },
     { name: "sku", title: "Internal code", type: "string", group: "listing", validation: (R) => R.required() },
-    { name: "code", title: "Set code", type: "string", group: "listing", description: 'e.g. "M6", "SV11B"' },
+    { name: "code", title: "Set code", type: "string", group: "listing", description: 'e.g. "M6", "SV11B". Leave blank only for accessories.', validation: needsSet("set code") },
     {
       name: "era", title: "Era", type: "string", group: "listing",
       options: { list: [
@@ -47,7 +66,7 @@ export default {
       description: "How customers browse to it in the menu. Pick the line it belongs to — set Product type and Shop category below as normal, so a 30th Celebration booster box still shows under Booster Boxes too.",
       validation: (R) => R.required()
     },
-    { name: "set", title: "Series", type: "string", group: "listing" },
+    { name: "set", title: "Series", type: "string", group: "listing", validation: needsSet("series") },
     {
       name: "category", title: "Shop category", type: "string", group: "listing",
       options: { list: [
@@ -59,11 +78,19 @@ export default {
         { title: "Pre-orders", value: "preorder" },
         { title: "Vault accessories", value: "accessories" }
       ]},
-      validation: (R) => R.required()
+      validation: (R) => [
+        R.required(),
+        R.custom((value, { document }) => {
+          const ok = TYPE_CATEGORIES[document?.type];
+          if (!value || !ok || ok.includes(value)) return true;
+          return `A "${document.type}" doesn't usually belong here — check the shop category.`;
+        }).warning()
+      ]
     },
     {
       name: "language", title: "Language", type: "string", group: "listing",
-      options: { list: ["Japanese", "English", "Chinese", "N/A"] }, initialValue: "Japanese"
+      options: { list: ["Japanese", "English", "Chinese", "N/A"] }, initialValue: "Japanese",
+      validation: (R) => R.required()
     },
     {
       name: "images", title: "Photographs", type: "array", group: "listing",

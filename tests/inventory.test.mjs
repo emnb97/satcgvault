@@ -452,14 +452,12 @@ test("/api/stock serves the live map with a short CDN cache", async () => {
 
 /* ================= delivery (must match the bag page and policy) ================= */
 
-test("delivery: £3.99 under £50, free at exactly £50", async () => {
+test("delivery: Tracked 48 £5.99 (free from £50), Tracked 24 always £6.99", async () => {
   const E = "SATV-ACR-ETB";           // £25.00
   await setStock(E, 10);
+  const opts = (r) => r.session._params.shipping_options.map((o) => [o.shipping_rate_data.display_name, o.shipping_rate_data.fixed_amount.amount]);
   const one = await openCheckout([{ sku: E, qty: 1 }]);
-  const rate1 = one.session._params.shipping_options[0].shipping_rate_data;
-  assert.equal(rate1.fixed_amount.amount, 399);
+  assert.deepEqual(opts(one), [["Royal Mail Tracked 48", 599], ["Royal Mail Tracked 24 — next working day", 699]]);
   const two = await openCheckout([{ sku: E, qty: 2 }]);
-  const rate2 = two.session._params.shipping_options[0].shipping_rate_data;
-  assert.equal(rate2.fixed_amount.amount, 0);
-  assert.equal(rate2.display_name, "Tracked 48 — free over £50");
+  assert.deepEqual(opts(two), [["Royal Mail Tracked 48 — free over £50", 0], ["Royal Mail Tracked 24 — next working day", 699]]);
 });

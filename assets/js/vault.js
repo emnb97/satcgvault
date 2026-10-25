@@ -343,8 +343,8 @@
       var sub = Cart.subtotal();
       /* Same figures the checkout charges (data/products.json via <meta>). */
       var sm = document.querySelector('meta[name="vault-shipping"]');
-      var sv = (sm ? sm.getAttribute("content") : "5000,399").split(",");
-      var freeOver = parseInt(sv[0], 10) || 5000, std = parseInt(sv[1], 10) || 399;
+      var sv = (sm ? sm.getAttribute("content") : "5000,599").split(",");
+      var freeOver = parseInt(sv[0], 10) || 5000, std = parseInt(sv[1], 10) || 599;
       var ship = sub >= freeOver || sub === 0 ? 0 : std;
       $("#sum-sub").textContent = gbp(sub);
       $("#sum-ship").textContent = ship === 0 ? "Free" : gbp(ship);
@@ -437,7 +437,25 @@
 
       var ZOOM = 2.6, SIZE = 190, box = null;
 
-      function measure() { box = plate.getBoundingClientRect(); }
+      /* The page shows each photo at up to 1000px, which the loupe would
+         only enlarge. For Sanity photos, ask the image CDN for a 2400px
+         version the first time someone actually zooms (so ordinary page
+         loads stay light), and use it once it has arrived. Follows the
+         gallery: if the main photo changes, the next zoom fetches that one. */
+      var sharp = {};
+      function hiRes(src) {
+        if (!/cdn\.sanity\.io/.test(src)) return src;
+        if (sharp[src]) return sharp[src] === true ? src : sharp[src];
+        var big = src.replace(/([?&])w=\d+/, "$1w=2400").replace(/([?&])h=\d+/, "$1h=2400");
+        if (big === src) return src;
+        sharp[src] = true;                      // loading: keep using the normal one
+        var pre = new Image();
+        pre.onload = function () { sharp[src] = big; };
+        pre.src = big;
+        return src;
+      }
+
+      function measure() { box = plate.getBoundingClientRect(); hiRes(img.currentSrc || img.src); }
 
       function paint(clientX, clientY) {
         if (!box) measure();
@@ -446,7 +464,7 @@
         if (x < 0 || y < 0 || x > box.width || y > box.height) { return hide(); }
 
         plate.setAttribute("data-loupe", "on");
-        lens.style.backgroundImage = "url('" + img.currentSrc + "')";
+        lens.style.backgroundImage = "url('" + hiRes(img.currentSrc || img.src) + "')";
         lens.style.backgroundSize = (box.width * ZOOM) + "px " + (box.height * ZOOM) + "px";
         lens.style.backgroundPosition =
           (-x * ZOOM + SIZE / 2) + "px " + (-y * ZOOM + SIZE / 2) + "px";

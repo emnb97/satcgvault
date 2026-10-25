@@ -19,7 +19,7 @@ const CANDIDATES = [
   join(HERE, "..", "..", "..", "data", "products.json")
 ];
 
-let fallback = { currency: "GBP", freeShippingThresholdPence: 5000, standardShippingPence: 399, products: [] };
+let fallback = { currency: "GBP", freeShippingThresholdPence: 5000, standardShippingPence: 599, nextDayShippingPence: 699, products: [] };
 for (const candidate of CANDIDATES) {
   try {
     if (!existsSync(candidate)) continue;

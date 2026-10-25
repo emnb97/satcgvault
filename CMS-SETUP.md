@@ -1,3 +1,7 @@
+> **Studio deploys (October 2026):** Sanity is now pinned to a tested version (6.18.0) and
+> `sanity/sanity.cli.js` is part of the repo. Deploying is just
+> `cd sanity`, `npm install`, `npx sanity deploy` — no upgrading or recreating files first.
+
 > **Live stock (October 2026):** stock counts no longer live in Sanity. The "Opening stock"
 > field only seeds a brand-new line; after that, Omar receives and counts stock on the
 > Stock desk at `/vault-desk.html`, and sales take stock down automatically. See STOCK-SETUP.md.

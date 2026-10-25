@@ -5,7 +5,6 @@ dist/
 .env.*
 .DS_Store
 
-# Sanity CLI local files (recreated as needed; never commit)
+# Sanity CLI local files (never commit)
 sanity/.sanity/
 sanity/package-lock.json
-sanity/sanity.cli.js

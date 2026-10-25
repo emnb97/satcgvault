@@ -6,7 +6,7 @@
    ============================================================ */
 import { readFile, writeFile, mkdir, readdir, cp, rm } from "node:fs/promises";
 import path from "node:path";
-import { loadCatalogue, overlayLiveStock } from "./catalogue.mjs";
+import { loadCatalogue, overlayLiveStock, checkCatalogue } from "./catalogue.mjs";
 import { ERAS } from "./eras.mjs";
 import { createHash } from "node:crypto";
 
@@ -40,7 +40,8 @@ const BIZ = {
   facebook: "https://www.facebook.com/61591501810829/"
 }
 
-const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+/* Blank Sanity fields arrive as null. Print nothing, never the word "null". */
+const esc = (s) => (s === null || s === undefined ? "" : String(s)).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const gbp = (p) => "£" + (p / 100).toFixed(2);
 const eraSlug = (e) => (e || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
@@ -84,7 +85,7 @@ function shell({ title, description, url, body, jsonld = [], bodyClass = "", noi
 <link rel="preload" href="/assets/fonts/gothic-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="${ASSETS.css}" as="style">
 <link rel="stylesheet" href="${ASSETS.css}">
-<meta name="vault-shipping" content="${SHIP.free},${SHIP.std}">
+<meta name="vault-shipping" content="${SHIP.free},${SHIP.std},${SHIP.next}">
 <meta name="vault-stock-endpoint" content="${LIVE ? "/api/stock" : "/stock.json"}">
 <script src="${ASSETS.js}" defer></script>
 ${extraHead}${jsonld.map((j) => `<script type="application/ld+json">${JSON.stringify(j)}</script>`).join("\n")}
@@ -324,10 +325,16 @@ function placeholder(name, label, palette) {
 /* ---------- shared bits ---------- */
 const SEAL = (cls = "") => `<span class="seal ${cls}" role="img" aria-label="Photographed on arrival"><span aria-hidden="true">封<br>印</span></span>`;
 
+/* Join the parts that exist with a separator — no "null", no stray dots. */
+const dot = (...parts) => parts.filter((x) => x !== null && x !== undefined && String(x).trim() !== "").map(esc).join(" · ");
+/* "N/A" is right in Sanity's dropdown but reads oddly on a product. */
+const lang = (p) => (p.language && p.language !== "N/A" ? p.language : "");
+const typeLine = (p, ...more) => dot(p.type ? p.type + (p.packs ? `, ${p.packs} packs` : "") : "", lang(p), ...more);
+
 function statusLine(p) {
   if (p.frozen) return `<span class="state state--none">Withdrawn</span>`;
-  if (p.preorder) return `<span class="state">Inbound</span> — ${esc(p.dispatch)}`;
-  if (p.stock === 0) return `<span class="state state--none">Sold</span> — ${esc(p.dispatch)}`;
+  if (p.preorder) return `<span class="state">Inbound</span>${p.dispatch ? " — " + esc(p.dispatch) : ""}`;
+  if (p.stock === 0) return `<span class="state state--none">Sold</span>${p.dispatch ? " — " + esc(p.dispatch) : ""}`;
   return `<span class="state">In the vault</span> — dispatched within 48 hours`;
 }
 
@@ -414,12 +421,12 @@ function productPage(p, cfg) {
       </div>
 
       <div>
-        <p class="meta ref"><span class="lotno">Lot ${p.lotNo}</span> · ${esc(p.code)} · ${esc(p.era)}</p>
+        <p class="meta ref"><span class="lotno">Lot ${p.lotNo}</span>${dot(p.code, p.era) ? " · " + dot(p.code, p.era) : ""}</p>
         <h1 style="font-size:var(--t-xl);margin-bottom:.1em">${esc(p.name)}</h1>
         ${p.jp ? `<p class="jp" style="font-family:var(--mincho);color:var(--ink-3);margin-bottom:.6rem">${esc(p.jp)}</p>` : ""}
-        <p class="meta" style="font-size:var(--t-sm);margin-bottom:1.5rem">${esc(p.type)}${p.packs ? `, ${p.packs} packs` : ""} · ${esc(p.language)}</p>
+        <p class="meta" style="font-size:var(--t-sm);margin-bottom:1.5rem">${typeLine(p)}</p>
 
-        <p class="lede" style="max-width:44ch">${esc(p.summary)}</p>
+        ${p.summary ? `<p class="lede" style="max-width:44ch">${esc(p.summary)}</p>` : ""}
 
         <p style="display:flex;align-items:baseline;gap:.9rem;margin:1.75rem 0 .5rem">
           <span class="price" style="font-size:var(--t-xl)">${gbp(p.pricePence)}</span>
@@ -446,14 +453,14 @@ function productPage(p, cfg) {
           <caption class="hidden">Lot details</caption>
           <tbody>
             <tr><th scope="row">Lot</th><td>${p.lotNo}</td></tr>
-            <tr><th scope="row">Reference</th><td>${esc(p.code)} / ${esc(p.sku)}</td></tr>
-            <tr><th scope="row">Series</th><td>${esc(p.set)}</td></tr>
-            <tr><th scope="row">Language</th><td>${esc(p.language)}</td></tr>
+            <tr><th scope="row">Reference</th><td>${[p.code, p.sku].filter(Boolean).map(esc).join(" / ")}</td></tr>
+            ${p.set ? `<tr><th scope="row">Series</th><td>${esc(p.set)}</td></tr>` : ""}
+            ${lang(p) ? `<tr><th scope="row">Language</th><td>${esc(lang(p))}</td></tr>` : ""}
             <tr><th scope="row">Pack contents</th><td>${p.cardsPerPack ? p.cardsPerPack + " cards per pack" : "—"}</td></tr>
             <tr><th scope="row">Condition</th><td>${esc(p.condition)}</td></tr>
             <tr><th scope="row">Outer seal</th><td>${p.sealed ? "Unbroken, photographed on arrival" : "See condition"}</td></tr>
-            <tr><th scope="row">Provenance</th><td>Licensed Japanese supplier, direct to Manchester</td></tr>
-            <tr><th scope="row">Dispatch</th><td>${esc(p.dispatch)}</td></tr>
+            <tr><th scope="row">Provenance</th><td>${p.language === "Japanese" ? "Licensed Japanese supplier, direct to Manchester" : "Licensed supplier, direct to Manchester"}</td></tr>
+            ${p.dispatch ? `<tr><th scope="row">Dispatch</th><td>${esc(p.dispatch)}</td></tr>` : ""}
             <tr><th scope="row">Weight</th><td>${p.weightGrams} g</td></tr>
           </tbody>
         </table>
@@ -465,10 +472,10 @@ function productPage(p, cfg) {
       </div>
     </div>
 
-    <div style="margin-top:clamp(2.5rem,5vw,4rem);border-top:2px solid var(--sumi);padding-top:1.75rem;max-width:62ch">
+    ${p.detail ? `<div style="margin-top:clamp(2.5rem,5vw,4rem);border-top:2px solid var(--sumi);padding-top:1.75rem;max-width:62ch">
       <h2 style="font-size:var(--t-lg)">Condition report</h2>
       <p class="muted">${esc(p.detail)}</p>
-    </div>
+    </div>` : ""}
   </div>
 </section>`;
 
@@ -476,12 +483,12 @@ function productPage(p, cfg) {
     "@context": "https://schema.org",
     "@type": "Product",
     name: `${p.name} ${p.type}`,
-    sku: p.sku, mpn: p.code,
-    description: p.summary,
+    sku: p.sku, mpn: p.code || undefined,
+    description: p.summary || undefined,
     image: [img.startsWith("http") ? img : SITE + img],
     brand: { "@type": "Brand", name: "Pokémon" },
     category: p.type,
-    inLanguage: p.language,
+    inLanguage: lang(p) || undefined,
     itemCondition: "https://schema.org/NewCondition",
     offers: {
       "@type": "Offer",
@@ -516,8 +523,8 @@ function productPage(p, cfg) {
   }];
 
   return { url, html: shell({
-    title: `${p.name} ${p.type} — sealed Japanese ${p.code} | ${BIZ.short}`,
-    description: p.summary.slice(0, 155),
+    title: `${p.name} ${p.type} — ${["sealed", lang(p), p.code].filter(Boolean).join(" ")} | ${BIZ.short}`,
+    description: (p.summary || `${p.name} ${p.type}, factory sealed, from S&A TCG Vault.`).slice(0, 155),
     url, body, jsonld
   })};
 }
@@ -529,17 +536,17 @@ function card(p) {
   const inStock = p.stock > 0 && !p.frozen;
   return `<a class="card" href="/product/${p.slug}.html" data-cursor="View lot" data-reveal="up" data-product
    data-category="${p.category}" data-era="${eraSlug(p.era)}" data-price="${p.pricePence}" data-name="${esc(p.name)}"
-   data-search="${esc((p.name + " " + p.set + " " + p.era + " " + p.code + " " + p.type + " " + p.language + " " + p.sku).toLowerCase())}">
+   data-search="${esc([p.name, p.jp, p.set, p.era, p.code, p.type, lang(p), p.sku].filter(Boolean).join(" ").toLowerCase())}">
   <div class="card__plate">
     <img src="${cardImg}" alt="${esc(shot.alt)}" width="480" height="640" loading="lazy" decoding="async">
-    <span class="card__stamp">${esc(p.code)} — sealed</span>
+    <span class="card__stamp">${p.code ? esc(p.code) + " — sealed" : "Sealed"}</span>
     <span class="card__seal">${SEAL("seal--sm")}</span>
   </div>
   <div class="card__body">
-    <span class="meta ref"><span class="lotno">Lot ${p.lotNo}</span> · ${esc(p.code)} · ${esc(p.era)}</span>
+    <span class="meta ref"><span class="lotno">Lot ${p.lotNo}</span>${dot(p.code, p.era) ? " · " + dot(p.code, p.era) : ""}</span>
     <h3 class="card__title">${esc(p.name)}</h3>
     ${p.jp ? `<span class="price-jp jp">${esc(p.jp)}</span>` : ""}
-    <span class="meta">${esc(p.type)}${p.packs ? `, ${p.packs} packs` : ""} · ${esc(p.language)}</span>
+    <span class="meta">${typeLine(p)}</span>
     <div class="card__foot">
       <span class="price">${gbp(p.pricePence)}</span>
       <span class="stock" data-live-stock="${esc(p.sku)}"${liveAttrs(p)} data-level="${inStock ? (p.stock <= 5 ? "low" : "ok") : "none"}">${inStock ? (p.preorder ? "Inbound" : p.stock + " available") : "Sold"}</span>
@@ -555,10 +562,10 @@ function lot(p) {
   return `<a class="lot" href="/product/${p.slug}.html" data-cursor="View lot" data-reveal>
   <div class="lot__plate"><img src="${lotImg}" alt="${esc(shot.alt)}" width="800" height="640" loading="lazy" decoding="async"></div>
   <div class="lot__body">
-    <span class="meta ref"><span class="lotno">Lot ${p.lotNo}</span> · ${esc(p.code)} · ${esc(p.era)}</span>
+    <span class="meta ref"><span class="lotno">Lot ${p.lotNo}</span>${dot(p.code, p.era) ? " · " + dot(p.code, p.era) : ""}</span>
     <h3 class="lot__title">${esc(p.name)}</h3>
-    <span class="meta">${esc(p.type)}${p.packs ? `, ${p.packs} packs` : ""} · ${esc(p.language)} · ${esc(p.condition)}</span>
-    <p>${esc(p.summary)}</p>
+    <span class="meta">${typeLine(p, p.condition)}</span>
+    ${p.summary ? `<p>${esc(p.summary)}</p>` : ""}
   </div>
   <div class="lot__side">
     <span class="lot__price">${gbp(p.pricePence)}</span>
@@ -664,11 +671,18 @@ function parse(raw) {
 const cfg = await loadCatalogue();
 const products = cfg.products;
 const LIVE = (await overlayLiveStock(products)).live;
+checkCatalogue(products);
 /* Delivery: ONE source — data/products.json. Checkout charges it and the
    bag page reads it from a <meta> tag, so the two can never disagree.
    The wording on cart.html and policies/delivery.html is fixed text:
    change those too if these numbers ever change. */
-const SHIP = { free: cfg.freeShippingThresholdPence ?? 5000, std: cfg.standardShippingPence ?? 399 };
+const SHIP = { free: cfg.freeShippingThresholdPence ?? 5000, std: cfg.standardShippingPence ?? 599, next: cfg.nextDayShippingPence ?? 699 };
+/* Delivery figures in page text come from the same place as checkout:
+   write {{SHIP_48}}, {{SHIP_24}} or {{SHIP_FREE}} in any page. */
+const shipTokens = (html) => html
+  .replaceAll("{{SHIP_48}}", "£" + (SHIP.std / 100).toFixed(2))
+  .replaceAll("{{SHIP_24}}", "£" + (SHIP.next / 100).toFixed(2))
+  .replaceAll("{{SHIP_FREE}}", "£" + (SHIP.free / 100).toFixed(0));
 
 /* Eras for the menu and the shop dropdown: the fixed list, then any
    era a product uses that the list doesn't know yet. */
@@ -778,6 +792,7 @@ for (const f of files) {
     html = html.replace("<!--TRUSTPILOT-->", block);
     if (block) extraHead = TP_SCRIPT;
   }
+  html = shipTokens(html);
   if (html.includes("<!--ERA_OPTIONS-->")) html = html.replace("<!--ERA_OPTIONS-->", eraOptions());
   if (html.includes("<!--FEATURED-->")) {
     html = html.replace("<!--FEATURED-->", products.filter((p) => p.stock > 0).slice(0, 4).map(lot).join("\n"));

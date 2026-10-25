@@ -12,11 +12,11 @@
         <h2 style="font-size:var(--t-md);margin-bottom:1rem">Order summary</h2>
         <dl>
           <dt>Subtotal</dt><dd id="sum-sub">£0.00</dd>
-          <dt>Delivery</dt><dd id="sum-ship">£0.00</dd>
+          <dt>Delivery <span class="muted">(Tracked 48)</span></dt><dd id="sum-ship">£0.00</dd>
           <dt class="grand">Total</dt><dd class="grand" id="sum-total">£0.00</dd>
         </dl>
         <button class="btn btn--block" id="checkout" type="button">Checkout</button>
-        <p class="meta" style="margin:.75rem 0 0">Prices are confirmed again on the secure checkout page before you pay. Delivery is free over £50.</p>
+        <p class="meta" style="margin:.75rem 0 0">Prices are confirmed again on the secure checkout page before you pay. Royal Mail Tracked 48 is {{SHIP_48}}, free over {{SHIP_FREE}}. Next working day (Tracked 24, {{SHIP_24}}) can be chosen at checkout.</p>
         <p class="meta" id="bnpl-msg" style="margin:.5rem 0 0"></p>
 
         <div class="paywall">
