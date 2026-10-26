@@ -387,6 +387,42 @@ function trustpilot() {
 </section>`;
 }
 
+/* ---------- homepage "By category" index ------------------------
+   Built from the catalogue, so the counts are real and the hover
+   preview is a real photo of something in that category. It used to
+   point at fixed placeholder drawings, which don't exist once products
+   have photos — the preview showed as a blank white box.
+   Rows with nothing in them are left out. */
+const CAT_ROWS = [
+  { c: "booster-box", name: "Booster boxes", desc: "Sealed thirty-pack Japanese displays from current and recent sets" },
+  { c: "etb", name: "Elite Trainer Boxes", desc: "Factory-sealed Elite Trainer Boxes" },
+  { c: "blister", name: "Blister packs", desc: "Factory-sealed blister packs" },
+  { c: "single", name: "Single cards", desc: "Individual cards, condition stated on every listing" },
+  { c: "special", name: "Premium sets", desc: "High class boxes, twin sets and special collections" },
+  { c: "preorder", name: "Inbound", desc: "Confirmed allocations open to reserve before they land" },
+  { c: "accessories", name: "Vault line", desc: "Our own UV-filtered acrylic display cases" }
+];
+/* A 5:4 crop at twice the preview's size, straight from Sanity's CDN. */
+const peekSrc = (shot) => /cdn\.sanity\.io/.test(shot.url)
+  ? shot.url.split("?")[0] + "?w=440&h=352&fit=crop&auto=format&q=78"
+  : shot.url;
+function catIndex(list) {
+  const rows = CAT_ROWS.map((r) => {
+    const items = list.filter((p) => p.category === r.c);
+    if (!items.length) return null;
+    const photo = items.find((p) => p.shots.some((s) => /cdn\.sanity\.io/.test(s.url))) || items[0];
+    const shot = photo.shots.find((s) => /cdn\.sanity\.io/.test(s.url)) || photo.shots[0];
+    return { ...r, n: items.length, peek: peekSrc(shot) };
+  }).filter(Boolean);
+  if (!rows.length) return "";
+  return `      <span class="index__peek" aria-hidden="true"><img id="peek-img" src="${esc(rows[0].peek)}" alt="" width="440" height="352" decoding="async"></span>
+${rows.map((r) => `      <a href="/shop.html?c=${r.c}" data-peek="${esc(r.peek)}">
+        <span class="hexbullet" aria-hidden="true" style="align-self:center"></span><span class="index__name">${esc(r.name)}</span>
+        <span class="index__desc">${esc(r.desc)}</span>
+        <span class="index__n">${r.n} ${r.n === 1 ? "lot" : "lots"}</span>
+      </a>`).join("\n")}`;
+}
+
 /* ---------- product page ---------- */
 function productPage(p, cfg) {
   const url = `/product/${p.slug}.html`;
@@ -774,6 +810,7 @@ for (const f of files) {
   const url = out === "index.html" ? "/" : "/" + out.replace(/\\/g, "/");
 
   let html = body;
+  if (html.includes("<!--CAT_INDEX-->")) html = html.replace("<!--CAT_INDEX-->", catIndex(products));
   if (html.includes("<!--GRID-->")) {
     html = html.replace("<!--GRID-->", products.map(card).join("\n"));
   }
