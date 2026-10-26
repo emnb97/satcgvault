@@ -242,14 +242,15 @@ async function checkPages(base, crawlRes) {
       const words = p.title.toLowerCase().split(/[\s|—–-]+/).filter(Boolean);
       const dup = words.find((w, i) => words.indexOf(w) !== i && /^(booster|box|boxes|pack|packs|set|sets|card|cards|tin|collection|japanese|pokemon|pokémon)$/.test(w));
       if (dup) add("warn", "Repeated word in title", live, p.title);
-      if (!noindex) (titles.get(p.title) || titles.set(p.title, []).get(p.title)).push(live);
+      /* Pages that name the same canonical are one page to Google, not duplicates. */
+      if (!noindex) { const t = titles.get(p.title) || titles.set(p.title, new Map()).get(p.title); t.set(p.canonical || live, live); }
     }
     // description
     if (!p.description && !noindex) add("error", "Missing meta description", live);
     else if (p.description && !noindex) {
       if (p.description.length < 70) add("warn", "Meta description too short", live, `${p.description.length} chars`);
       if (p.description.length > 165) add("warn", "Meta description too long", live, `${p.description.length} chars`);
-      if (!noindex) (descs.get(p.description) || descs.set(p.description, []).get(p.description)).push(live);
+      if (!noindex) { const d = descs.get(p.description) || descs.set(p.description, new Map()).get(p.description); d.set(p.canonical || live, live); }
     }
     // headings / language
     if (p.h1.length === 0) add("error", "No H1 heading", live);
@@ -306,8 +307,8 @@ async function checkPages(base, crawlRes) {
   }
   function self(u) { return u.split("?")[0]; }
 
-  for (const [t, us] of titles) if (us.length > 1) add("error", "Duplicate title", us[0], `${us.length} pages: “${t}”`);
-  for (const [d, us] of descs) if (us.length > 1) add("warn", "Duplicate meta description", us[0], `${us.length} pages share it`);
+  for (const [t, m] of titles) if (m.size > 1) add("error", "Duplicate title", [...m.values()][0], `${m.size} pages: “${t}”`);
+  for (const [d, m] of descs) if (m.size > 1) add("warn", "Duplicate meta description", [...m.values()][0], `${m.size} pages share it`);
   for (const loc of sitemapLocs) {
     const u = fromLive(loc);
     const r = pages.get(u);
@@ -470,7 +471,7 @@ await checkPages(base, crawlRes);
 const site = await checkSite(base, crawlRes);
 let psi = [];
 if (USE_PSI) {
-  const firstProduct = [...crawlRes.pages.keys()].find((u) => /\/product\//.test(u));
+  const firstProduct = [...crawlRes.pages.keys()].find((u) => /\/product\/[^.]+$/.test(u)) || [...crawlRes.pages.keys()].find((u) => /\/product\//.test(u));
   psi = await pageSpeed([base + "/", base + "/shop", firstProduct].filter(Boolean));
 }
 if (server) server.close();
