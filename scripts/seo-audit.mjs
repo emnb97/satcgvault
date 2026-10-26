@@ -199,8 +199,14 @@ const add = (level, check, url, detail = "") => issues.push({ level, check, url,
 const INVISIBLE = /[\u200B-\u200D\u2060\uFEFF]/;
 const PLACEHOLDER = /\b(null|undefined|NaN)\b|\[(PRICE|THRESHOLD|TBC|TODO|PLACEHOLDER)[^\]]*\]|lorem ipsum/i;
 
+let PREVIEW = false;
 async function checkPages(base, crawlRes) {
   const { pages, linkedFrom, sitemapLocs } = crawlRes;
+  /* A local build that isn't a production build marks every page noindex on
+     purpose. Judge its pages as if they were live rather than reporting that. */
+  const home = pages.get(base + "/");
+  PREVIEW = LOCAL && /noindex/.test(home?.parsed?.robots || "");
+  if (PREVIEW) console.log("  (Preview build: pages are noindex on purpose — checking them as if live.)");
   const toLive = (u) => (LOCAL ? u.replace(base, PROD) : u);
   const fromLive = (u) => (LOCAL ? u.replace(PROD, base) : u);
   const canonCache = new Map();
@@ -218,7 +224,9 @@ async function checkPages(base, crawlRes) {
     if (r.hops.length > 1) add("warn", "Redirect chain", toLive(url), r.hops.map((h) => `${h.status} → ${toLive(h.to)}`).join(", "));
     const p = r.parsed; if (!p) continue;
     const isProduct = /\/product\//.test(url);
-    const noindex = /noindex/.test(p.robots);
+    /* In a preview build, only the pages that are private in production too count as noindex. */
+    const PRIVATE = /\/(cart|order-confirmed|checkout-cancelled|vault-desk|contact-received|trade-received|404)$/;
+    const noindex = PREVIEW ? PRIVATE.test(new URL(url).pathname) : /noindex/.test(p.robots);
 
     // URL hygiene
     const urlPath = decodeURIComponent(new URL(r.finalUrl || url).pathname);
@@ -333,7 +341,10 @@ async function checkSite(base, crawlRes) {
     ok("Content Security Policy present", !!h?.get("content-security-policy"));
     ok("Pages served compressed", /br|gzip/.test(h?.get("content-encoding") || "") || true, h?.get("content-encoding") || "handled by CDN");
   }
-  for (const s of site) if (!s.pass) add("error", `Site check failed: ${s.label}`, base, s.detail);
+  for (const s of site) {
+    if (!s.pass && PREVIEW && /robots/.test(s.label)) { s.detail = "preview build — blocks robots on purpose"; s.pass = true; continue; }
+    if (!s.pass) add("error", `Site check failed: ${s.label}`, base, s.detail);
+  }
   return site;
 }
 
