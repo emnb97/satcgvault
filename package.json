@@ -12,7 +12,8 @@
     "migrate": "node scripts/migrate-to-sanity.mjs",
     "migrate-consignments": "node scripts/migrate-consignments.mjs",
     "db:setup": "node scripts/db-setup.mjs",
-    "test": "node --test-reporter=spec tests/inventory.test.mjs"
+    "test": "node --test-reporter=spec tests/inventory.test.mjs",
+    "seo": "node scripts/seo-audit.mjs"
   },
   "dependencies": {
     "@sanity/client": "^6.22.0",

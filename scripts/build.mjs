@@ -6,7 +6,7 @@
    ============================================================ */
 import { readFile, writeFile, mkdir, readdir, cp, rm } from "node:fs/promises";
 import path from "node:path";
-import { loadCatalogue, overlayLiveStock, checkCatalogue } from "./catalogue.mjs";
+import { loadCatalogue, overlayLiveStock, checkCatalogue, isSingle } from "./catalogue.mjs";
 import { ERAS } from "./eras.mjs";
 import { createHash } from "node:crypto";
 
@@ -56,8 +56,13 @@ function squeeze(html) {
     .trim();
 }
 
-function shell({ title, description, url, body, jsonld = [], bodyClass = "", noindex = false, extraHead = "" }) {
-  const canonical = SITE + url;
+/* The address Netlify actually serves: no ".html" (Netlify's pretty URLs
+   redirect /shop.html to /shop). Canonical tags, the sitemap and structured
+   data must name that address, not one that redirects. */
+const pretty = (url) => url.replace(/\/index\.html$/, "/").replace(/\.html$/, "");
+
+function shell({ title, description, url, body, jsonld = [], bodyClass = "", noindex = false, extraHead = "", ogImage = "", ogType = "website" }) {
+  const canonical = SITE + pretty(url);
   const robots = noindex || !IS_PROD ? "noindex, nofollow" : "index, follow, max-image-preview:large";
   return `<!doctype html>
 <html lang="en-GB">
@@ -70,12 +75,12 @@ function shell({ title, description, url, body, jsonld = [], bodyClass = "", noi
 <meta name="robots" content="${robots}">
 <meta name="theme-color" content="#0a0a0c">
 <meta name="color-scheme" content="dark">
-<meta property="og:type" content="website">
+<meta property="og:type" content="${ogType}">
 <meta property="og:site_name" content="${esc(BIZ.short)}">
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:url" content="${canonical}">
-<meta property="og:image" content="${SITE}/assets/img/og-default.png">
+<meta property="og:image" content="${ogImage || SITE + "/assets/img/og-default.png"}">
 <meta property="og:locale" content="en_GB">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
@@ -183,6 +188,7 @@ function footer() {
           <li><a href="/shop.html?c=special">Premium sets</a></li>
           <li><a href="/shop.html?c=accessories">Vault line</a></li>
           <li><a href="/shop.html">Everything</a></li>
+          <li><a href="/collection.html">Full collection</a></li>
         </ul>
       </div>
       <div>
@@ -216,7 +222,7 @@ function footer() {
       <span>© ${year} ${esc(BIZ.legal)}</span>
       <span>S&amp;A TCG Vault Ltd · Registered in England &amp; Wales no. 17328985</span>
       <span>ICO registration ZC239609</span>
-      <span>Carriage by Royal Mail and DPD</span>
+      <span>Carriage by Royal Mail</span>
       <span class="paymark">Visa</span><span class="paymark">Mastercard</span><span class="paymark">Apple Pay</span><span class="paymark">Klarna</span><span class="paymark">Clearpay</span>
       <span class="credit">Powered by <a href="https://ebwebservices.co.uk" rel="noopener">ebwsuk</a></span>
     </div>
@@ -387,6 +393,40 @@ function trustpilot() {
 </section>`;
 }
 
+/* ---------- product titles, descriptions, share images -----------
+   Omar's product names often already end in the type ("… Japanese Pokemon
+   Booster Box"), so adding the type again gave "Booster Box Booster Box". */
+const fullName = (p) => (p.type && !p.name.toLowerCase().includes(p.type.toLowerCase()) ? `${p.name} ${p.type}` : p.name);
+const ownBrand = (p) => p.era === "Vault Line" || /\bS&A\b/.test(p.name);
+function productTitle(p) {
+  const base = fullName(p);
+  const extra = [p.sealed ? "sealed" : "", lang(p), p.code].filter((x) => x && !base.toLowerCase().includes(String(x).toLowerCase()));
+  const t = `${base}${extra.length ? " — " + extra.join(" ") : ""} | ${BIZ.short}`;
+  return t.length > 65 ? `${base} | ${BIZ.short}` : t;
+}
+/* Google shows ~155 characters. A thin summary gets a useful sentence built
+   from the facts instead: what, condition, price, delivery. */
+function productDescription(p) {
+  if (p.summary && p.summary.length >= 70) return p.summary.slice(0, 155);
+  const parts = [
+    `${fullName(p)}${p.summary ? " — " + p.summary.replace(/[.\s]+$/, "") : ""}.`,
+    p.sealed ? "Factory sealed, photographed on arrival in Manchester." : (p.condition ? `${p.condition}.` : ""),
+    `${gbp(p.pricePence)} with UK tracked delivery.`
+  ];
+  /* Add whole sentences while they fit, so the snippet never stops mid-word. */
+  let d = "";
+  for (const s of parts.filter(Boolean)) if ((d + " " + s).trim().length <= 155) d = (d + " " + s).trim();
+  return d || parts[0].slice(0, 152).replace(/\s+\S*$/, "") + "…";
+}
+/* Share image: the product's own photo, cropped to the 1200×630 shape
+   social apps and Google Discover use. */
+function ogPhoto(p) {
+  const shot = (p.shots || []).find((s) => /cdn\.sanity\.io/.test(s.url));
+  if (shot) return shot.url.split("?")[0] + "?w=1200&h=630&fit=crop&auto=format&q=80";
+  const local = (p.shots || []).find((s) => /^\/assets\/photos\//.test(s.url));
+  return local ? SITE + local.url : "";
+}
+
 /* ---------- homepage "By category" index ------------------------
    Built from the catalogue, so the counts are real and the hover
    preview is a real photo of something in that category. It used to
@@ -494,7 +534,7 @@ function productPage(p, cfg) {
             ${lang(p) ? `<tr><th scope="row">Language</th><td>${esc(lang(p))}</td></tr>` : ""}
             <tr><th scope="row">Pack contents</th><td>${p.cardsPerPack ? p.cardsPerPack + " cards per pack" : "—"}</td></tr>
             <tr><th scope="row">Condition</th><td>${esc(p.condition)}</td></tr>
-            <tr><th scope="row">Outer seal</th><td>${p.sealed ? "Unbroken, photographed on arrival" : "See condition"}</td></tr>
+            ${p.sealed ? `<tr><th scope="row">Outer seal</th><td>Unbroken, photographed on arrival</td></tr>` : ""}
             <tr><th scope="row">Provenance</th><td>${p.language === "Japanese" ? "Licensed Japanese supplier, direct to Manchester" : "Licensed supplier, direct to Manchester"}</td></tr>
             ${p.dispatch ? `<tr><th scope="row">Dispatch</th><td>${esc(p.dispatch)}</td></tr>` : ""}
             <tr><th scope="row">Weight</th><td>${p.weightGrams} g</td></tr>
@@ -518,17 +558,18 @@ function productPage(p, cfg) {
   const jsonld = [{
     "@context": "https://schema.org",
     "@type": "Product",
-    name: `${p.name} ${p.type}`,
+    name: fullName(p),
     sku: p.sku, mpn: p.code || undefined,
     description: p.summary || undefined,
     image: [img.startsWith("http") ? img : SITE + img],
-    brand: { "@type": "Brand", name: "Pokémon" },
+    brand: { "@type": "Brand", name: ownBrand(p) ? BIZ.short : "Pokémon" },
     category: p.type,
     inLanguage: lang(p) || undefined,
     itemCondition: "https://schema.org/NewCondition",
+    url: SITE + pretty(url),
     offers: {
       "@type": "Offer",
-      url: SITE + url,
+      url: SITE + pretty(url),
       priceCurrency: cfg.currency,
       price: (p.pricePence / 100).toFixed(2),
       availability,
@@ -537,7 +578,12 @@ function productPage(p, cfg) {
       shippingDetails: {
         "@type": "OfferShippingDetails",
         shippingRate: { "@type": "MonetaryAmount", value: (cfg.standardShippingPence / 100).toFixed(2), currency: "GBP" },
-        shippingDestination: { "@type": "DefinedRegion", addressCountry: "GB" }
+        shippingDestination: { "@type": "DefinedRegion", addressCountry: "GB" },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          handlingTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 2, unitCode: "DAY" },
+          transitTime: { "@type": "QuantitativeValue", minValue: 1, maxValue: 3, unitCode: "DAY" }
+        }
       },
       hasMerchantReturnPolicy: {
         "@type": "MerchantReturnPolicy",
@@ -553,14 +599,15 @@ function productPage(p, cfg) {
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: SITE + "/" },
-      { "@type": "ListItem", position: 2, name: "Catalogue", item: SITE + "/shop.html" },
-      { "@type": "ListItem", position: 3, name: p.name, item: SITE + url }
+      { "@type": "ListItem", position: 2, name: "Catalogue", item: SITE + "/shop" },
+      { "@type": "ListItem", position: 3, name: p.name, item: SITE + pretty(url) }
     ]
   }];
 
   return { url, html: shell({
-    title: `${p.name} ${p.type} — ${["sealed", lang(p), p.code].filter(Boolean).join(" ")} | ${BIZ.short}`,
-    description: (p.summary || `${p.name} ${p.type}, factory sealed, from S&A TCG Vault.`).slice(0, 155),
+    title: productTitle(p),
+    description: productDescription(p),
+    ogImage: ogPhoto(p), ogType: "product",
     url, body, jsonld
   })};
 }
@@ -575,7 +622,7 @@ function card(p) {
    data-search="${esc([p.name, p.jp, p.set, p.era, p.code, p.type, lang(p), p.sku].filter(Boolean).join(" ").toLowerCase())}">
   <div class="card__plate">
     <img src="${cardImg}" alt="${esc(shot.alt)}" width="480" height="640" loading="lazy" decoding="async">
-    <span class="card__stamp">${p.code ? esc(p.code) + " — sealed" : "Sealed"}</span>
+    <span class="card__stamp">${p.sealed ? (p.code ? esc(p.code) + " — sealed" : "Sealed") : esc(p.code || p.condition || "")}</span>
     <span class="card__seal">${SEAL("seal--sm")}</span>
   </div>
   <div class="card__body">
@@ -646,7 +693,7 @@ function ledger(records) {
       <div class="record__plate">${r.image ? `<img src="${r.image}" alt="${esc(r.alt || ("Consignment " + r.ref + " photographed on arrival"))}" width="800" height="640" loading="lazy" decoding="async" draggable="false">` : `<div class="record__noimg" aria-hidden="true">${esc(r.ref)}</div>`}<span class="record__seal" aria-hidden="true">封印</span></div>
       <h3 class="record__ref">${esc(r.ref)}</h3>
       <dl>
-        <dt>Landed</dt><dd>${fmt(r.date)}</dd>
+        <dt>${new Date(r.date) > new Date() ? "Due" : "Landed"}</dt><dd>${fmt(r.date)}</dd>
         <dt>Origin</dt><dd>${esc(r.origin)}</dd>
         <dt>Lines</dt><dd>${r.lines}</dd>
         <dt>Cartons</dt><dd>${r.cartons}</dd>
@@ -707,7 +754,7 @@ function parse(raw) {
 const cfg = await loadCatalogue();
 const products = cfg.products;
 const LIVE = (await overlayLiveStock(products)).live;
-checkCatalogue(products);
+checkCatalogue(products, ERAS);
 /* Delivery: ONE source — data/products.json. Checkout charges it and the
    bag page reads it from a <meta> tag, so the two can never disagree.
    The wording on cart.html and policies/delivery.html is fixed text:
@@ -885,6 +932,23 @@ for (const p of products) {
   urls.push({ loc: page.url, pri: "0.8" });
 }
 
+/* Old product addresses that the slug clean-up changed: 301 them to the
+   clean one so shared links and anything Google already found keep working.
+   _redirects is read by Netlify before the rules in netlify.toml. */
+{
+  const lines = [];
+  for (const p of products) {
+    if (!p.rawSlug || p.rawSlug === p.slug) continue;
+    const raw = String(p.rawSlug).replace(/\.html$/i, "");
+    const forms = new Set([raw, raw.toLowerCase()].flatMap((r) => [encodeURI(r), encodeURI(r) + ".html"]));
+    for (const f of forms) lines.push(`/product/${f}  /product/${p.slug}  301!`);
+  }
+  if (lines.length) {
+    await writeFile(path.join(DIST, "_redirects"), "# Generated by scripts/build.mjs — cleaned product addresses\n" + lines.join("\n") + "\n");
+    console.log(`Redirects: ${lines.length} old product address(es) → clean ones`);
+  }
+}
+
 /* CSP guard. Inline <script>s run only if their exact sha256 is listed
    in netlify.toml's script-src — otherwise the browser silently blocks
    them (that is how live stock, the reveal animations and the
@@ -912,7 +976,7 @@ const today = new Date().toISOString().slice(0, 10);
 await writeFile(path.join(DIST, "sitemap.xml"),
   `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map((u) => `  <url><loc>${SITE}${u.loc}</loc><lastmod>${today}</lastmod><priority>${u.pri}</priority></url>`).join("\n")}
+${urls.map((u) => `  <url><loc>${SITE}${pretty(u.loc)}</loc><lastmod>${today}</lastmod><priority>${u.pri}</priority></url>`).join("\n")}
 </urlset>
 `);
 

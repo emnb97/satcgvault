@@ -73,10 +73,39 @@ export async function loadCatalogue() {
   }
 }
 
-function normalise(p) {
+/* Text pasted from other sites can carry invisible characters (word
+   joiners, zero-width spaces). They end up in titles and search results. */
+const INVISIBLE = /[\u200B-\u200D\u2060\uFEFF]/g;
+function clean(v) {
+  if (typeof v === "string") return v.replace(INVISIBLE, "").replace(/\s+/g, " ").trim();
+  if (Array.isArray(v)) return v.map(clean);
+  if (v && typeof v === "object") return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, clean(x)]));
+  return v;
+}
+
+/* A web address Google and every browser agree on: lower case, letters,
+   numbers and hyphens only. Sanity slugs typed by hand can contain spaces,
+   capitals, accents, "&" or a trailing ".html"; the build cleans them and
+   301-redirects the old address (see _redirects in build.mjs). */
+export function cleanSlug(s) {
+  return String(s || "")
+    .replace(/\.html$/i, "")
+    .normalize("NFKD").replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/&/g, "-and-")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+export const isSingle = (p) => p.category === "single" || p.type === "Single Card";
+
+function normalise(raw) {
+  const p = clean(raw);
   const avail = p.availability || "stock";
   return {
     ...p,
+    rawSlug: raw.slug,
+    slug: cleanSlug(p.slug || `${p.name} ${p.type}`) || cleanSlug(p.sku),
     availability: avail,
     preorder: avail === "inbound" || !!p.preorder,
     sourced: avail === "sourced",
@@ -85,7 +114,8 @@ function normalise(p) {
     frozen: !!p.frozen,
     rarity: p.rarity || "vault",
     condition: p.condition || "Factory sealed",
-    sealed: p.sealed !== false,
+    /* A single card isn't a sealed product, whatever the tickbox says. */
+    sealed: p.sealed !== false && !isSingle(p),
     weightGrams: p.weightGrams || 480,
     /* Sanity's image CDN does format conversion and resizing on the
        fly, so we ask for AVIF at the size we actually render. */
@@ -151,8 +181,9 @@ export const TYPE_CATEGORIES = {
 };
 const NO_SET = new Set(["Display Case", "Accessory"]);
 
-export function checkCatalogue(products) {
+export function checkCatalogue(products, eras = []) {
   const issues = [];
+  const jpSeen = new Map();
   const add = (p, msg) => issues.push(`  ${p.name || "(no name)"} [${p.sku || "no SKU"}]: ${msg}`);
   const seen = new Map();
   for (const p of products) {
@@ -170,6 +201,15 @@ export function checkCatalogue(products) {
       if (!p.set) add(p, "no series");
     }
     if (!p.language) add(p, "no language");
+    if (p.era && eras.length && !eras.includes(p.era)) add(p, `era "${p.era}" isn't one of the menu eras — pick one from the list`);
+    if (p.jp) {
+      if (p.language && p.language !== "Japanese") add(p, `Japanese name "${p.jp}" on a ${p.language} product — check it belongs here`);
+      if (jpSeen.has(p.jp)) add(p, `same Japanese name "${p.jp}" as ${jpSeen.get(p.jp)} — one of them is wrong`);
+      else jpSeen.set(p.jp, p.sku);
+    }
+    if (isSingle(p) && /sealed/i.test(p.condition || "")) add(p, `single card with condition "${p.condition}" — give its grade, e.g. Near Mint`);
+    if (p.rawSlug && p.rawSlug !== p.slug) add(p, `web address "${p.rawSlug}" cleaned to "${p.slug}" (old address redirects) — update the slug in Sanity to match`);
+    if (p.summary && p.summary.length < 70) add(p, "short description is very short — Google uses it as the search snippet");
     if (!p.summary) add(p, "no short description");
     if (!p.dispatch && p.availability !== "sourced") add(p, "no dispatch line");
     for (const [k, v] of Object.entries(p)) {

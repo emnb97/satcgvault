@@ -90,16 +90,6 @@
   status = 200
 
 [[redirects]]
-  from = "/shop"
-  to = "/shop.html"
-  status = 301
-
-[[redirects]]
-  from = "/trade"
-  to = "/trade.html"
-  status = 301
-
-[[redirects]]
   from = "/api/checkout"
   to = "/.netlify/functions/create-checkout-session"
   status = 200
