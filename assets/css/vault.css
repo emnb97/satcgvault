@@ -711,10 +711,17 @@ html.js [data-reveal][data-seen="true"] { clip-path: inset(0 0 0 0) !important; 
 @media (prefers-reduced-motion: reduce) { html.js [data-reveal] { clip-path: none !important; } }
 
 /* Headline arrives line by line, each from behind its own edge. */
-.reveal-line { display: block; overflow: hidden; }
-html.js .reveal-line > span { transform: translateY(105%); }
+/* Room below each line for descenders (the J and p in "Japan"), taken
+   back with a negative margin so the line spacing doesn't change. */
+.reveal-line { display: block; overflow: hidden; padding-bottom: .12em; margin-bottom: -.12em; }
+/* The "shown" rule must outrank the "hidden" one, so both start html.js.
+   (The plain [data-seen] version lost to it and left the headline hidden
+   once the CSP allowed the .js class to be set.) The animation is a
+   failsafe: the lines show after 4s even if the script never runs. */
+html.js .reveal-line > span { transform: translateY(105%); animation: lineSafe 0s linear 4s forwards; }
+@keyframes lineSafe { to { transform: none; } }
 .reveal-line > span { display: block; transition: transform .95s cubic-bezier(.76,0,.24,1); }
-[data-seen="true"] .reveal-line > span { transform: none; }
+html.js [data-seen="true"] .reveal-line > span { transform: none; }
 .reveal-line:nth-child(2) > span { transition-delay: .09s; }
 .reveal-line:nth-child(3) > span { transition-delay: .18s; }
 @media (prefers-reduced-motion: reduce) { .reveal-line > span { transform: none !important; } }
