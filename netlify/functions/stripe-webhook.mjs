@@ -126,17 +126,35 @@ function report(result, sessionId) {
   }
 }
 
+/* Stripe can't limit a US address to mainland states, so check after
+   payment. Alaska, Hawaii, territories and military mail aren't covered by
+   the US rates: shout so Omar refunds or contacts the buyer before posting. */
+const NOT_MAINLAND = new Set(["AK", "HI", "PR", "GU", "VI", "AS", "MP", "UM", "AA", "AE", "AP", "FM", "MH", "PW"]);
+function checkUsAddress(session) {
+  const a = session.shipping_details?.address || session.collected_information?.shipping_details?.address;
+  if (a?.country === "US" && NOT_MAINLAND.has(String(a.state || "").toUpperCase())) {
+    console.error("ACTION NEEDED — US order to a non-mainland address (" + a.state + "). Refund or contact the buyer before posting:", session.id);
+    return false;
+  }
+  return true;
+}
+
 async function logOrder(session) {
+  checkUsAddress(session);
   const items = await stripe().checkout.sessions.listLineItems(session.id, { limit: 50 });
   console.log("PAID ORDER", {
     id: session.id,
     email: session.customer_details?.email,
     total: session.amount_total,
+    destination: session.metadata?.destination || "GB",
+    freeGift: session.metadata?.gift_sku || null,
     delivery: session.shipping_cost?.amount_total,   // which service: see the payment in Stripe
     method: session.payment_method_types,
     lines: items.data.map((l) => `${l.quantity} × ${l.description}`)
   });
 }
+
+export { checkUsAddress };
 
 function ok(extra = {}) {
   return new Response(JSON.stringify({ received: true, ...extra }), {

@@ -10,13 +10,19 @@
 
       <aside class="totals hidden" id="cart-summary">
         <h2 style="font-size:var(--t-md);margin-bottom:1rem">Order summary</h2>
+        <fieldset class="dest" id="dest">
+          <legend>Delivering to</legend>
+          <label><input type="radio" name="dest" value="GB" checked> United Kingdom</label>
+          <label><input type="radio" name="dest" value="US"> United States <span class="muted">(mainland)</span></label>
+        </fieldset>
+        <p class="offer-progress" id="offer-progress" aria-live="polite"></p>
         <dl>
           <dt>Subtotal</dt><dd id="sum-sub">£0.00</dd>
-          <dt>Delivery <span class="muted">(Tracked 48)</span></dt><dd id="sum-ship">£0.00</dd>
+          <dt>Delivery <span class="muted" id="sum-ship-label">(Tracked 48)</span></dt><dd id="sum-ship">£0.00</dd>
           <dt class="grand">Total</dt><dd class="grand" id="sum-total">£0.00</dd>
         </dl>
         <button class="btn btn--block" id="checkout" type="button">Checkout</button>
-        <p class="meta" style="margin:.75rem 0 0">Prices are confirmed again on the secure checkout page before you pay. Royal Mail Tracked 48 is {{SHIP_48}}, free over {{SHIP_FREE}}. Next working day (Tracked 24, {{SHIP_24}}) can be chosen at checkout.</p>
+        <p class="meta" style="margin:.75rem 0 0">Prices are confirmed again on the secure checkout page before you pay. <span id="ship-note-gb">Royal Mail Tracked 48 is {{SHIP_48}}, free over {{SHIP_FREE}}. Next working day (Tracked 24, {{SHIP_24}}) can be chosen at checkout.</span><span id="ship-note-us" hidden>Royal Mail International Tracked to the mainland US: {{US_1KG}} up to 1 kg, {{US_2KG}} up to 2 kg, {{US_DAYS}} business days. US import duty is prepaid by us.</span></p>
         <p class="meta" id="bnpl-msg" style="margin:.5rem 0 0"></p>
 
         <div class="paywall">

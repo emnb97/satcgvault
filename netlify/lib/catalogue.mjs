@@ -37,7 +37,7 @@ export async function catalogueNow() {
   if (!process.env.SANITY_PROJECT_ID) return fallback;
   if (cache && Date.now() - cachedAt < 60_000) return cache;
 
-  const q = `*[_type == "product" && !hidden && availability != "hidden"]{ "sku": sku, name, pricePence, stock, frozen,
+  const q = `*[_type == "product" && !hidden && availability != "hidden"]{ "sku": sku, name, pricePence, stock, frozen, weightGrams, freeGift, era,
     availability, "set": set, "type": type, language, condition, "slug": slug.current }`;
   const url = `https://${process.env.SANITY_PROJECT_ID}.apicdn.sanity.io/v2024-01-01/data/query/${process.env.SANITY_DATASET || "production"}?query=${encodeURIComponent(q)}`;
 
@@ -59,3 +59,23 @@ export function json(body, status = 200, extra = {}) {
     headers: { "Content-Type": "application/json", "Cache-Control": "no-store", ...extra }
   });
 }
+
+/* ---------- weights (for international postage bands) ----------
+   A product's own "Shipping weight" in Sanity wins. Without one, a
+   typical weight for its type is used, so a single card isn't charged
+   as if it weighed as much as a booster box. Keep in step with
+   scripts/catalogue.mjs. */
+export const TYPE_WEIGHT = {
+  "Booster Box": 480, "High Class Box": 450, "Elite Trainer Box": 900, "Blister Pack": 120,
+  "Single Card": 20, "Twin Set": 250, "Special Set": 500, "Mystery Pouch": 60,
+  "Display Case": 350, "Accessory": 300
+};
+export const weightOf = (p) => (p.weightGrams > 0 ? p.weightGrams : (TYPE_WEIGHT[p.type] ?? 480));
+
+/* ---------- the free gift ----------------------------------------
+   The product Omar ticks "Free gift with orders over £50" on in Sanity.
+   Frozen, teaser or hidden products are never given away. */
+export const findGift = (products) =>
+  products.find((p) => p.freeGift && !p.frozen && (p.availability || "stock") !== "sourced") || null;
+export const giftLabel = (p) =>
+  p && (p.type === "Mystery Pouch" || p.era === "Mystery Pouches" || /mystery/i.test(p.name)) ? "mystery pouch" : "gift";

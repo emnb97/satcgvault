@@ -461,3 +461,103 @@ test("delivery: Tracked 48 £5.99 (free from £50), Tracked 24 always £6.99", a
   const two = await openCheckout([{ sku: E, qty: 2 }]);
   assert.deepEqual(opts(two), [["Royal Mail Tracked 48 — free over £50", 0], ["Royal Mail Tracked 24 — next working day", 699]]);
 });
+
+/* ================= US delivery + free gift ================= */
+const { catalogueNow } = await import("../netlify/lib/catalogue.mjs");
+const { checkUsAddress } = await import("../netlify/functions/stripe-webhook.mjs");
+const BOX = "SATV-M1L-BRAVE";   // £119, 480 g
+const GIFT = "SATV-M3-MUNI";
+async function openTo(items, destination) {
+  const res = await checkout(new Request("http://x/", { method: "POST", body: JSON.stringify({ items, destination }) }));
+  const body = await res.json();
+  const s = body.url ? fake.sessions.get(body.url.split("/").pop()) : null;
+  return { status: res.status, body, session: s, holdId: s?.metadata.hold_id };
+}
+const setGift = async (sku) => { for (const p of (await catalogueNow()).products) p.freeGift = p.sku === sku; };
+
+test("US: one box (≈0.63 kg packed) is the £19 band, US-only address, mainland notice", async () => {
+  await setGift(null); await setStock(BOX, 10);
+  const r = await openTo([{ sku: BOX, qty: 1 }], "US");
+  const p = r.session._params;
+  assert.deepEqual(p.shipping_address_collection.allowed_countries, ["US"]);
+  assert.equal(p.shipping_options.length, 1);
+  assert.equal(p.shipping_options[0].shipping_rate_data.fixed_amount.amount, 1900);
+  assert.equal(p.shipping_options[0].shipping_rate_data.delivery_estimate.maximum.value, 7);
+  assert.match(p.custom_text.shipping_address.message, /Mainland United States only/);
+  assert.equal(p.metadata.destination, "US");
+});
+
+test("US: three boxes (≈1.59 kg) is the £23 band", async () => {
+  await setGift(null); await setStock(BOX, 10);
+  const r = await openTo([{ sku: BOX, qty: 3 }], "US");
+  assert.equal(r.session._params.shipping_options[0].shipping_rate_data.fixed_amount.amount, 2300);
+});
+
+test("US: over 2 kg is refused before any stock is taken", async () => {
+  await setGift(null); await setStock(BOX, 10);
+  const r = await openTo([{ sku: BOX, qty: 4 }], "US");    // 1920 + 150 g
+  assert.equal(r.status, 409);
+  assert.match(r.body.error, /up to 2 kg/);
+  assert.equal(await avail(BOX), 10);
+});
+
+test("UK orders are unchanged: GB only, two Royal Mail options", async () => {
+  await setGift(null); await setStock(BOX, 10);
+  const r = await openTo([{ sku: BOX, qty: 1 }]);
+  assert.deepEqual(r.session._params.shipping_address_collection.allowed_countries, ["GB"]);
+  assert.equal(r.session._params.shipping_options.length, 2);
+});
+
+test("unknown destination is refused", async () => {
+  const r = await openTo([{ sku: BOX, qty: 1 }], "FR");
+  assert.equal(r.status, 400);
+});
+
+test("gift: over £50 adds a free line and takes one from stock; expiry puts it back", async () => {
+  await setGift(GIFT); await setStock(BOX, 10); await setStock(GIFT, 5);
+  const r = await openTo([{ sku: BOX, qty: 1 }]);
+  const free = r.session._params.line_items.find((l) => l.price_data.unit_amount === 0);
+  assert.ok(free, "gift line present");
+  assert.equal(free.price_data.product_data.metadata.sku, GIFT);
+  assert.equal(r.session._params.metadata.gift_sku, GIFT);
+  assert.equal(await avail(GIFT), 4);
+  await send("checkout.session.expired", { ...r.session });
+  assert.equal(await avail(GIFT), 5);
+  assert.equal(await avail(BOX), 10);
+});
+
+test("gift: under £50 gets no gift", async () => {
+  await setGift(GIFT); await setStock("SATV-ACR-ETB", 10); await setStock(GIFT, 5);
+  const r = await openTo([{ sku: "SATV-ACR-ETB", qty: 1 }]);   // £25
+  assert.ok(!r.session._params.line_items.some((l) => l.price_data.unit_amount === 0));
+  assert.equal(await avail(GIFT), 5);
+});
+
+test("gift: sold out never blocks the order", async () => {
+  await setGift(GIFT); await setStock(BOX, 10); await setStock(GIFT, 0);
+  const r = await openTo([{ sku: BOX, qty: 1 }]);
+  assert.equal(r.status, 200);
+  assert.ok(!r.session._params.line_items.some((l) => l.price_data.unit_amount === 0));
+  assert.equal(await avail(BOX), 9);
+});
+
+test("gift: never pushes a US parcel over 2 kg, and never into a dearer band", async () => {
+  await setGift(GIFT); await setStock(BOX, 10); await setStock(GIFT, 5);
+  // 3 boxes + packing = 1590 g → £23; gift (480 g sample weight) would make 2070 g → left out
+  const r = await openTo([{ sku: BOX, qty: 3 }], "US");
+  assert.equal(r.status, 200);
+  assert.ok(!r.session._params.line_items.some((l) => l.price_data.unit_amount === 0));
+  // 1 box = 630 g → £19 band; gift fits under 2 kg and the band stays £19
+  const r2 = await openTo([{ sku: BOX, qty: 1 }], "US");
+  assert.ok(r2.session._params.line_items.some((l) => l.price_data.unit_amount === 0));
+  assert.equal(r2.session._params.shipping_options[0].shipping_rate_data.fixed_amount.amount, 1900);
+  await setGift(null);
+});
+
+test("webhook flags Alaska, Hawaii, territories and military addresses", () => {
+  const at = (state) => checkUsAddress({ id: "cs_x", shipping_details: { address: { country: "US", state } } });
+  assert.equal(at("CA"), true);
+  assert.equal(at("NY"), true);
+  for (const s of ["AK", "HI", "PR", "GU", "AE"]) assert.equal(at(s), false, s);
+  assert.equal(checkUsAddress({ shipping_details: { address: { country: "GB" } } }), true);
+});

@@ -91,6 +91,8 @@ function shell({ title, description, url, body, jsonld = [], bodyClass = "", noi
 <link rel="preload" href="${ASSETS.css}" as="style">
 <link rel="stylesheet" href="${ASSETS.css}">
 <meta name="vault-shipping" content="${SHIP.free},${SHIP.std},${SHIP.next}">
+<meta name="vault-offer" content="${OFFER ? OFFER.threshold + "|" + OFFER.label : ""}">
+<meta name="vault-intl" content="${INTL_META}">
 <meta name="vault-stock-endpoint" content="${LIVE ? "/api/stock" : "/stock.json"}">
 <script src="${ASSETS.js}" defer></script>
 ${extraHead}${jsonld.map((j) => `<script type="application/ld+json">${JSON.stringify(j)}</script>`).join("\n")}
@@ -98,6 +100,7 @@ ${extraHead}${jsonld.map((j) => `<script type="application/ld+json">${JSON.strin
 <body${bodyClass ? ` class="${bodyClass}"` : ""}>
 <a class="skip" href="#main">Skip to content</a>
 ${header(url)}
+${offerStrip()}
 <main id="main">
 ${body}
 </main>
@@ -512,7 +515,7 @@ function productPage(p, cfg) {
 
         <form id="pdp-form"
               data-sku="${esc(p.sku)}" data-name="${esc(p.name)}" data-price="${p.pricePence}"
-              data-image="${img}" data-url="${url}" data-stock="${p.stock}"${p.frozen ? ' data-frozen="1"' : ""}${p.preorder ? ' data-preorder="1"' : ""}>
+              data-image="${img}" data-url="${url}" data-stock="${p.stock}" data-weight="${p.weightGrams}"${p.frozen ? ' data-frozen="1"' : ""}${p.preorder ? ' data-preorder="1"' : ""}>
           <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center">
             <div class="qty">
               <button type="button" data-step="-1" aria-label="Decrease quantity">−</button>
@@ -524,6 +527,7 @@ function productPage(p, cfg) {
             </button>
           </div>
         </form>
+        ${OFFER && !p.freeGift ? `<p class="offer-line">${esc(OFFER.short)}</p>` : ""}
 
         <table class="specs" style="margin-top:2rem">
           <caption class="hidden">Lot details</caption>
@@ -575,7 +579,7 @@ function productPage(p, cfg) {
       availability,
       itemCondition: "https://schema.org/NewCondition",
       seller: { "@type": "Organization", name: BIZ.legal },
-      shippingDetails: {
+      shippingDetails: [{
         "@type": "OfferShippingDetails",
         shippingRate: { "@type": "MonetaryAmount", value: (cfg.standardShippingPence / 100).toFixed(2), currency: "GBP" },
         shippingDestination: { "@type": "DefinedRegion", addressCountry: "GB" },
@@ -584,7 +588,7 @@ function productPage(p, cfg) {
           handlingTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 2, unitCode: "DAY" },
           transitTime: { "@type": "QuantitativeValue", minValue: 1, maxValue: 3, unitCode: "DAY" }
         }
-      },
+      }, ...usShippingLd(p)],
       hasMerchantReturnPolicy: {
         "@type": "MerchantReturnPolicy",
         applicableCountry: "GB",
@@ -760,12 +764,56 @@ checkCatalogue(products, ERAS);
    The wording on cart.html and policies/delivery.html is fixed text:
    change those too if these numbers ever change. */
 const SHIP = { free: cfg.freeShippingThresholdPence ?? 5000, std: cfg.standardShippingPence ?? 599, next: cfg.nextDayShippingPence ?? 699 };
+/* ---------- spend-over offer + US delivery ------------------------
+   From data/products.json ("offer", "international") and the product
+   ticked "Free gift" in Sanity. Turn the offer off with
+   "offer": { "enabled": false }. */
+const GIFT = products.find((p) => p.freeGift && !p.frozen && p.availability !== "sourced") || null;
+const GIFT_LABEL = GIFT && (GIFT.type === "Mystery Pouch" || GIFT.era === "Mystery Pouches" || /mystery/i.test(GIFT.name)) ? "mystery pouch" : "gift";
+const OFFER = (cfg.offer?.enabled !== false) ? (() => {
+  const threshold = cfg.offer?.thresholdPence ?? SHIP.free;
+  const over = "£" + (threshold / 100).toFixed(0);
+  const gift = GIFT && GIFT.stock > 0 ? `a free ${GIFT_LABEL}` : "";
+  return {
+    threshold, label: gift ? GIFT_LABEL : "",
+    long: gift ? `Spend over ${over} for free UK delivery and ${gift}` : `Free UK delivery on orders over ${over}`,
+    short: gift ? `Over ${over}: free UK delivery + ${gift}` : `Free UK delivery over ${over}`
+  };
+})() : null;
+const US = cfg.international?.US || null;
+const INTL_META = US ? `US|${US.bands.map((b) => b.maxGrams + ":" + b.pence).join(",")}|${cfg.packagingGrams ?? 150}` : "";
+const usShippingLd = (p) => !US ? [] : [{
+  "@type": "OfferShippingDetails",
+  shippingRate: { "@type": "MonetaryAmount", value: (US.bands.find((b) => p.weightGrams + (cfg.packagingGrams ?? 150) <= b.maxGrams) || US.bands[US.bands.length - 1]).pence / 100, currency: "GBP" },
+  shippingDestination: { "@type": "DefinedRegion", addressCountry: "US" },
+  deliveryTime: {
+    "@type": "ShippingDeliveryTime",
+    handlingTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 2, unitCode: "DAY" },
+    transitTime: { "@type": "QuantitativeValue", minValue: US.minDays, maxValue: US.maxDays, unitCode: "DAY" }
+  }
+}];
+/* Desktop-only strip under the header (hidden on phones in CSS: there,
+   the offer appears as single lines in the page instead). */
+const offerStrip = () => !OFFER ? "" : `<aside class="offer" aria-label="Offer">
+  <div class="wrap offer__in">
+    <span class="offer__seal" aria-hidden="true">贈</span>
+    <span>${esc(OFFER.long)}</span>${OFFER.label ? `<span class="offer__aside">while stocks last</span>` : ""}
+    <a class="offer__go" href="/shop.html">Shop the vault</a>
+  </div>
+</aside>`;
+
 /* Delivery figures in page text come from the same place as checkout:
    write {{SHIP_48}}, {{SHIP_24}} or {{SHIP_FREE}} in any page. */
 const shipTokens = (html) => html
   .replaceAll("{{SHIP_48}}", "£" + (SHIP.std / 100).toFixed(2))
   .replaceAll("{{SHIP_24}}", "£" + (SHIP.next / 100).toFixed(2))
-  .replaceAll("{{SHIP_FREE}}", "£" + (SHIP.free / 100).toFixed(0));
+  .replaceAll("{{SHIP_FREE}}", "£" + (SHIP.free / 100).toFixed(0))
+  .replaceAll("{{US_1KG}}", US ? "£" + (US.bands[0].pence / 100).toFixed(0) : "")
+  .replaceAll("{{US_2KG}}", US ? "£" + (US.bands[US.bands.length - 1].pence / 100).toFixed(0) : "")
+  .replaceAll("{{US_DAYS}}", US ? `${US.minDays}–${US.maxDays}` : "")
+  .replaceAll("{{OFFER_LINE}}", OFFER ? `<p class="offer-line offer-line--phone">${esc(OFFER.short)}</p>` : "")
+  .replaceAll("{{GIFT_POLICY}}", OFFER && OFFER.label ? `<h2>Free gift</h2>
+    <p>Orders over ${"£" + (OFFER.threshold / 100).toFixed(0)} (before delivery) include a free ${esc(OFFER.label)}, while stocks last. It's added to your order automatically at checkout, one per order, and has no cash value. It isn't something you need to return if you send the rest of the order back.</p>` : "");
 
 /* Eras for the menu and the shop dropdown: the fixed list, then any
    era a product uses that the list doesn't know yet. */
@@ -900,7 +948,7 @@ for (const f of files) {
       postalCode: BIZ.postcode,
       addressCountry: "GB"
     },
-    areaServed: { "@type": "Country", name: "United Kingdom" },
+    areaServed: [{ "@type": "Country", name: "United Kingdom" }, ...(US ? [{ "@type": "Country", name: "United States" }] : [])],
     currenciesAccepted: "GBP",
     paymentAccepted: "Visa, Mastercard, Apple Pay, Google Pay, Klarna, Clearpay",
     sameAs: [BIZ.instagram, BIZ.tiktok],

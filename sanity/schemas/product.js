@@ -151,7 +151,11 @@ export default {
     { name: "packs", title: "Packs per box", type: "number", group: "detail" },
     { name: "condition", title: "Condition", type: "string", group: "detail", initialValue: "Factory sealed" },
     { name: "sealed", title: "Factory sealed", type: "boolean", group: "detail", initialValue: true },
-    { name: "weightGrams", title: "Shipping weight (g)", type: "number", group: "detail" },
+    { name: "weightGrams", title: "Shipping weight (g)", type: "number", group: "detail",
+      description: "Weight of the item as packed for posting. Sets the US postage band (up to 1 kg / up to 2 kg). Leave blank to use a typical weight for its type.",
+      validation: (R) => R.min(0).max(5000) },
+    { name: "freeGift", title: "Free gift with orders over £50", type: "boolean", group: "stock", initialValue: false,
+      description: "Tick on ONE product (e.g. the mystery pouch). Orders over £50 get one free while it's in stock; it comes out of this product's stock like a sale. Untick to stop the offer's gift." },
     {
       name: "summary", title: "Short description", type: "text", rows: 3, group: "detail",
       description: "One or two sentences. Also used as the Google search description, so keep it under 155 characters.",

@@ -3,6 +3,16 @@
   "freeShippingThresholdPence": 5000,
   "standardShippingPence": 599,
   "nextDayShippingPence": 699,
+  "packagingGrams": 150,
+  "offer": { "enabled": true, "thresholdPence": 5000 },
+  "international": {
+    "US": {
+      "label": "United States (mainland)",
+      "service": "Royal Mail International Tracked",
+      "minDays": 5, "maxDays": 7,
+      "bands": [ { "maxGrams": 1000, "pence": 1900 }, { "maxGrams": 2000, "pence": 2300 } ]
+    }
+  },
   "products": [
     {
       "sku": "SATV-M6A-30TH",

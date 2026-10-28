@@ -201,6 +201,7 @@
         image: d.image,
         url: d.url,
         max: parseInt(d.stock, 10) || 99,
+        weight: parseInt(d.weight, 10) || 0,
         qty: parseInt(input.value, 10) || 1
       });
     });
@@ -320,6 +321,21 @@
     var host = $("#cart-lines");
     if (!host) return;
 
+    /* Offer and US postage bands, from <meta> tags the build writes from
+       data/products.json — the same figures the checkout uses. */
+    var om = (document.querySelector('meta[name="vault-offer"]') || {}).content || "";
+    var offer = om ? { threshold: parseInt(om.split("|")[0], 10), label: om.split("|")[1] || "" } : null;
+    var im = (document.querySelector('meta[name="vault-intl"]') || {}).content || "";
+    var intl = im ? {
+      bands: im.split("|")[1].split(",").map(function (b) { var x = b.split(":"); return { max: +x[0], pence: +x[1] }; }),
+      pack: parseInt(im.split("|")[2], 10) || 150
+    } : null;
+    function destination() {
+      var d = "GB";
+      try { d = localStorage.getItem("satv.dest") || "GB"; } catch (e) {}
+      return d === "US" && intl ? "US" : "GB";
+    }
+
     function render() {
       var items = Cart.read();
       if (!items.length) {
@@ -345,10 +361,42 @@
       var sm = document.querySelector('meta[name="vault-shipping"]');
       var sv = (sm ? sm.getAttribute("content") : "5000,599").split(",");
       var freeOver = parseInt(sv[0], 10) || 5000, std = parseInt(sv[1], 10) || 599;
-      var ship = sub >= freeOver || sub === 0 ? 0 : std;
+      var dest = destination();
+      var ship, label;
+      if (dest === "US") {
+        /* US: priced by packed weight. Items added before weights were
+           recorded count as a booster box (480 g); checkout has the final word. */
+        var grams = intl.pack + items.reduce(function (g, i) { return g + (i.weight || 480) * i.qty; }, 0);
+        var band = intl.bands.filter(function (b) { return grams <= b.max; })[0];
+        ship = band ? band.pence : null;
+        label = band ? "(US, up to " + band.max / 1000 + " kg)" : "(US)";
+      } else {
+        ship = sub >= freeOver || sub === 0 ? 0 : std;
+        label = "(Tracked 48)";
+      }
       $("#sum-sub").textContent = gbp(sub);
-      $("#sum-ship").textContent = ship === 0 ? "Free" : gbp(ship);
-      $("#sum-total").textContent = gbp(sub + ship);
+      $("#sum-ship-label").textContent = label;
+      $("#sum-ship").textContent = ship === null ? "Over 2 kg" : ship === 0 ? "Free" : gbp(ship);
+      $("#sum-total").textContent = gbp(sub + (ship || 0));
+      $("#ship-note-gb").hidden = dest === "US";
+      $("#ship-note-us").hidden = dest !== "US";
+      var go = $("#checkout");
+      if (go) go.disabled = ship === null;
+      var heavy = $("#too-heavy");
+      if (ship === null && !heavy) {
+        $("#checkout").insertAdjacentHTML("beforebegin", '<p class="meta" id="too-heavy" style="color:var(--shu);margin:0 0 .75rem">This order is over 2 kg, the most we can post to the US. Email info@satcgvault.co.uk for a quote.</p>');
+      } else if (ship !== null && heavy) heavy.remove();
+
+      /* "£X away from …" — the offer, counted on the goods only. */
+      var prog = $("#offer-progress");
+      if (prog && offer) {
+        var perks = dest === "US"
+          ? (offer.label ? "a free " + offer.label : "")
+          : "free UK delivery" + (offer.label ? " and a free " + offer.label : "");
+        if (!perks) prog.textContent = "";
+        else if (sub >= offer.threshold) prog.innerHTML = '<b>Unlocked:</b> ' + perks + (offer.label ? ", added at checkout." : ".");
+        else prog.textContent = gbp(offer.threshold - sub) + " away from " + perks + ".";
+      }
       var bnpl = $("#bnpl-msg");
       if (bnpl) {
         bnpl.textContent = sub >= 3000
@@ -356,6 +404,12 @@
           : "";
       }
     }
+
+    $$('#dest input[name="dest"]').forEach(function (r) {
+      r.checked = r.value === destination();
+      r.addEventListener("change", function () { try { localStorage.setItem("satv.dest", r.value); } catch (e) {} render(); });
+    });
+    if (!intl) { var df = $("#dest"); if (df) df.hidden = true; }
 
     host.addEventListener("click", function (ev) {
       var line = ev.target.closest("[data-sku]");
@@ -392,7 +446,7 @@
       fetch("/.netlify/functions/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: items })
+        body: JSON.stringify({ items: items, destination: destination() })
       })
         .then(function (r) { return r.json(); })
         .then(function (data) {

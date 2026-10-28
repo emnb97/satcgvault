@@ -23,7 +23,7 @@ const QUERY = `*[_type == "product" && !hidden && availability != "hidden"] | or
   "slug": slug.current,
   name, jp, type, code, set, era, language, category, availability,
   packs, cardsPerPack, condition, sealed, preorder, rarity, frozen,
-  pricePence, stock, dispatch, weightGrams, summary, detail,
+  pricePence, stock, dispatch, weightGrams, freeGift, summary, detail,
   "images": images[]{ "url": asset->url, "thumb": asset->url, alt }
 }`;
 
@@ -97,6 +97,12 @@ export function cleanSlug(s) {
     .replace(/^-+|-+$/g, "");
 }
 
+export const TYPE_WEIGHT = {
+  "Booster Box": 480, "High Class Box": 450, "Elite Trainer Box": 900, "Blister Pack": 120,
+  "Single Card": 20, "Twin Set": 250, "Special Set": 500, "Mystery Pouch": 60,
+  "Display Case": 350, "Accessory": 300
+};
+
 export const isSingle = (p) => p.category === "single" || p.type === "Single Card";
 
 function normalise(raw) {
@@ -116,7 +122,9 @@ function normalise(raw) {
     condition: p.condition || "Factory sealed",
     /* A single card isn't a sealed product, whatever the tickbox says. */
     sealed: p.sealed !== false && !isSingle(p),
-    weightGrams: p.weightGrams || 480,
+    /* Typical weight by type when Sanity has none (see netlify/lib/catalogue.mjs). */
+    weightGrams: p.weightGrams > 0 ? p.weightGrams : (TYPE_WEIGHT[p.type] ?? 480),
+    freeGift: !!p.freeGift,
     /* Sanity's image CDN does format conversion and resizing on the
        fly, so we ask for AVIF at the size we actually render. */
     images: (p.images || []).map((im) => {
