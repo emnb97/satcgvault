@@ -475,22 +475,22 @@ async function openTo(items, destination) {
 }
 const setGift = async (sku) => { for (const p of (await catalogueNow()).products) p.freeGift = p.sku === sku; };
 
-test("US: one box (≈0.63 kg packed) is the £19 band, US-only address, mainland notice", async () => {
+test("US: one box (≈0.63 kg packed) is the £27 band, US-only address, mainland notice", async () => {
   await setGift(null); await setStock(BOX, 10);
   const r = await openTo([{ sku: BOX, qty: 1 }], "US");
   const p = r.session._params;
   assert.deepEqual(p.shipping_address_collection.allowed_countries, ["US"]);
   assert.equal(p.shipping_options.length, 1);
-  assert.equal(p.shipping_options[0].shipping_rate_data.fixed_amount.amount, 1900);
+  assert.equal(p.shipping_options[0].shipping_rate_data.fixed_amount.amount, 2700);
   assert.equal(p.shipping_options[0].shipping_rate_data.delivery_estimate.maximum.value, 7);
   assert.match(p.custom_text.shipping_address.message, /Mainland United States only/);
   assert.equal(p.metadata.destination, "US");
 });
 
-test("US: three boxes (≈1.59 kg) is the £23 band", async () => {
+test("US: three boxes (≈1.59 kg) is the £31 band", async () => {
   await setGift(null); await setStock(BOX, 10);
   const r = await openTo([{ sku: BOX, qty: 3 }], "US");
-  assert.equal(r.session._params.shipping_options[0].shipping_rate_data.fixed_amount.amount, 2300);
+  assert.equal(r.session._params.shipping_options[0].shipping_rate_data.fixed_amount.amount, 3100);
 });
 
 test("US: over 2 kg is refused before any stock is taken", async () => {
@@ -543,14 +543,14 @@ test("gift: sold out never blocks the order", async () => {
 
 test("gift: never pushes a US parcel over 2 kg, and never into a dearer band", async () => {
   await setGift(GIFT); await setStock(BOX, 10); await setStock(GIFT, 5);
-  // 3 boxes + packing = 1590 g → £23; gift (480 g sample weight) would make 2070 g → left out
+  // 3 boxes + packing = 1590 g → £31; gift (480 g sample weight) would make 2070 g → left out
   const r = await openTo([{ sku: BOX, qty: 3 }], "US");
   assert.equal(r.status, 200);
   assert.ok(!r.session._params.line_items.some((l) => l.price_data.unit_amount === 0));
-  // 1 box = 630 g → £19 band; gift fits under 2 kg and the band stays £19
+  // 1 box = 630 g → £27 band; gift fits under 2 kg and the band stays £27
   const r2 = await openTo([{ sku: BOX, qty: 1 }], "US");
   assert.ok(r2.session._params.line_items.some((l) => l.price_data.unit_amount === 0));
-  assert.equal(r2.session._params.shipping_options[0].shipping_rate_data.fixed_amount.amount, 1900);
+  assert.equal(r2.session._params.shipping_options[0].shipping_rate_data.fixed_amount.amount, 2700);
   await setGift(null);
 });
 
