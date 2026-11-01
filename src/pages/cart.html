@@ -15,7 +15,10 @@
           <label><input type="radio" name="dest" value="GB" checked> United Kingdom</label>
           <label><input type="radio" name="dest" value="US"> United States <span class="muted">(mainland)</span></label>
         </fieldset>
-        <p class="offer-progress" id="offer-progress" aria-live="polite"></p>
+        <div class="gift-row" id="gift-row" data-state="none">
+          <span class="gift-row__plate" aria-hidden="true"><img id="gift-img" alt="" width="96" height="128" decoding="async"></span>
+          <p class="offer-progress" id="offer-progress" aria-live="polite"></p>
+        </div>
         <dl>
           <dt>Subtotal</dt><dd id="sum-sub">£0.00</dd>
           <dt>Delivery <span class="muted" id="sum-ship-label">(Tracked 48)</span></dt><dd id="sum-ship">£0.00</dd>
@@ -52,3 +55,17 @@
 <style>
 @media (max-width: 820px) { .cart-layout { grid-template-columns: 1fr !important; } }
 </style>
+
+<!--XSELL-->
+<div class="xs" id="xs" hidden>
+  <div class="xs__scrim" data-xs-close></div>
+  <div class="xs__panel" role="dialog" aria-modal="true" aria-labelledby="xs-h">
+    <button class="xs__x" type="button" data-xs-close aria-label="Back to bag">×</button>
+    <h2 class="xs__h" id="xs-h">Why not take a look at</h2>
+    <div class="xs__row" id="xs-row"></div>
+    <div class="xs__foot">
+      <button class="btn btn--block" type="button" id="xs-go">Continue to checkout</button>
+      <button class="xs__back" type="button" data-xs-close>Back to bag</button>
+    </div>
+  </div>
+</div>

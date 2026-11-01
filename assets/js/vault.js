@@ -397,6 +397,16 @@
         else if (sub >= offer.threshold) prog.innerHTML = '<b>Unlocked:</b> ' + perks + (offer.label ? ", added at checkout." : ".");
         else prog.textContent = gbp(offer.threshold - sub) + " away from " + perks + ".";
       }
+      /* The gift's own photograph beside the offer line: greyed until the
+         bag reaches the threshold, lit once it is unlocked. */
+      var gr = $("#gift-row"), gi = $("#gift-img");
+      if (gr) {
+        var gm = ((document.querySelector('meta[name="vault-gift"]') || {}).content || "").split("|");
+        var hasGift = !!(offer && offer.label && gm[0]);
+        if (hasGift && gi && !gi.getAttribute("src")) { gi.src = gm[0]; gi.alt = gm[1] || ""; }
+        var st = !hasGift ? "none" : (sub >= offer.threshold ? "unlocked" : "locked");
+        if (gr.getAttribute("data-state") !== st) gr.setAttribute("data-state", st);
+      }
       var bnpl = $("#bnpl-msg");
       if (bnpl) {
         bnpl.textContent = sub >= 3000
@@ -438,7 +448,57 @@
       if (e.persisted) { resetCheckout(); render(); }
     });
 
+    /* "Why not take a look at": once per visit, before the hand-off,
+       Vault accessories that are in stock and not already in the bag.
+       Nothing to show, or already shown: straight to checkout. */
+    var xs = $("#xs"), xsRow = $("#xs-row"), xsTpl = $("#xsell"), xsLast = null;
+    function xsSeen() { try { return sessionStorage.getItem("satv.xs") === "1"; } catch (e) { return false; } }
+    function xsMark() { try { sessionStorage.setItem("satv.xs", "1"); } catch (e) {} }
+    function xsCards() {
+      if (!xsTpl) return [];
+      var inBag = Cart.read().map(function (i) { return i.sku; });
+      return Array.prototype.slice.call(xsTpl.content.querySelectorAll(".xs-card")).filter(function (c) {
+        var live = c.getAttribute("data-live");
+        return inBag.indexOf(c.getAttribute("data-sku")) < 0 && live !== "0";
+      }).slice(0, 6);
+    }
+    function xsClose() { if (!xs) return; xs.hidden = true; document.body.classList.remove("xs-open"); if (xsLast) xsLast.focus(); }
+    function xsOpen(cards) {
+      xsRow.innerHTML = "";
+      cards.forEach(function (c) { xsRow.appendChild(c.cloneNode(true)); });
+      xsRow.setAttribute("data-n", String(cards.length));
+      xsLast = document.activeElement;
+      xs.hidden = false; document.body.classList.add("xs-open"); xsMark();
+      var g = $("#xs-go"); if (g) g.focus();
+    }
+    if (xs) {
+      $$("[data-xs-close]", xs).forEach(function (b) { b.addEventListener("click", xsClose); });
+      document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !xs.hidden) xsClose(); });
+      xsRow.addEventListener("click", function (e) {
+        var b = e.target.closest(".xs-card__add"); if (!b) return;
+        var c = b.closest(".xs-card"), d = c.dataset;
+        if (b.getAttribute("aria-pressed") === "true") {
+          var cur = Cart.read().filter(function (i) { return i.sku === d.sku; })[0];
+          if (cur) Cart.setQty(d.sku, Math.max(0, cur.qty - 1));
+          b.setAttribute("aria-pressed", "false"); b.textContent = "Add to bag";
+        } else {
+          Cart.add({ sku: d.sku, name: d.name, price: parseInt(d.price, 10), image: d.image, url: d.url,
+                     max: parseInt(d.stock, 10) || 99, weight: parseInt(d.weight, 10) || 0, qty: 1 });
+          b.setAttribute("aria-pressed", "true"); b.textContent = "Added";
+        }
+        render();
+      });
+      var xg = $("#xs-go"); if (xg) xg.addEventListener("click", function () { xsClose(); startCheckout(); });
+    }
+
     if (go) go.addEventListener("click", function () {
+      if (!Cart.read().length) return;
+      var cards = xs && !xsSeen() ? xsCards() : [];
+      if (cards.length) { xsOpen(cards); return; }
+      startCheckout();
+    });
+
+    function startCheckout() {
       var items = Cart.read().map(function (i) { return { sku: i.sku, qty: i.qty }; });
       if (!items.length) return;
       go.disabled = true;
@@ -469,7 +529,7 @@
           go.textContent = "Checkout";
           toast("Checkout is unavailable right now. " + (err.message || ""));
         });
-    });
+    }
 
     render();
   }
@@ -1315,6 +1375,48 @@
   }
 
   /* ---------- boot ---------- */
+  /* ---------- home hero rail ----------------------------------
+     Lots across the page. Native horizontal scroll (swipe on phones),
+     plus arrows, a progress line and drag-to-scroll with a mouse.
+     Without JS it is still a plain scrollable row. */
+  function initRail() {
+    var rail = $("#rail");
+    if (!rail) return;
+    var bar = $("#rail-bar"), raf = 0;
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    function step() { var c = $(".card", rail); return c ? c.getBoundingClientRect().width + 16 : 300; }
+    function paint() {
+      raf = 0;
+      if (bar) bar.style.width = Math.max(10, (rail.scrollLeft + rail.clientWidth) / rail.scrollWidth * 100) + "%";
+    }
+    rail.addEventListener("scroll", function () { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
+    window.addEventListener("resize", paint);
+    paint();
+    $$("[data-rail]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        rail.scrollBy({ left: parseInt(b.getAttribute("data-rail"), 10) * step() * 2, behavior: reduce ? "auto" : "smooth" });
+      });
+    });
+    var down = false, moved = false, x0 = 0, s0 = 0;
+    rail.addEventListener("pointerdown", function (e) {
+      if (e.pointerType !== "mouse" || e.button !== 0) return;
+      down = true; moved = false; x0 = e.clientX; s0 = rail.scrollLeft;
+    });
+    window.addEventListener("pointermove", function (e) {
+      if (!down) return;
+      var dx = e.clientX - x0;
+      if (!moved && Math.abs(dx) > 5) { moved = true; rail.setAttribute("data-drag", "true"); }
+      if (moved) rail.scrollLeft = s0 - dx;
+    });
+    window.addEventListener("pointerup", function () {
+      if (!down) return; down = false;
+      setTimeout(function () { rail.removeAttribute("data-drag"); }, 0);
+    });
+    rail.addEventListener("click", function (e) { if (moved) { e.preventDefault(); moved = false; } }, true);
+    rail.addEventListener("dragstart", function (e) { e.preventDefault(); });
+    requestAnimationFrame(function () { rail.setAttribute("data-in", "true"); });
+  }
+
   function boot() {
     /* The endpoint lives in a <meta> tag, not an inline script: the CSP
        blocks inline scripts, which silently disabled live stock before. */
@@ -1325,6 +1427,7 @@
     initScanner();
     initReveals();
     initHeroLines();
+    initRail();
     Cart.paint();
     initNav();
     initMegaMenu();

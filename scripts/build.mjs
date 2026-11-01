@@ -92,6 +92,7 @@ function shell({ title, description, url, body, jsonld = [], bodyClass = "", noi
 <link rel="stylesheet" href="${ASSETS.css}">
 <meta name="vault-shipping" content="${SHIP.free},${SHIP.std},${SHIP.next}">
 <meta name="vault-offer" content="${OFFER ? OFFER.threshold + "|" + OFFER.label : ""}">
+<meta name="vault-gift" content="${OFFER && OFFER.label && GIFT ? esc((GIFT.shots[0] || {}).thumb || (GIFT.shots[0] || {}).url || "") + "|" + esc(GIFT.name) : ""}">
 <meta name="vault-intl" content="${INTL_META}">
 <meta name="vault-stock-endpoint" content="${LIVE ? "/api/stock" : "/stock.json"}">
 <script src="${ASSETS.js}" defer></script>
@@ -926,6 +927,32 @@ for (const f of files) {
   }
   html = shipTokens(html);
   if (html.includes("<!--ERA_OPTIONS-->")) html = html.replace("<!--ERA_OPTIONS-->", eraOptions());
+  /* Home hero: lots across the page. Same card as the catalogue, minus
+     the shop-filter hooks, in-stock first, then inbound. */
+  if (html.includes("<!--RAIL-->")) {
+    const rank = (p) => (p.stock > 0 && !p.frozen ? (p.preorder ? 1 : 0) : 2);
+    const railLots = products
+      .filter((p) => p.category !== "accessories" && !p.freeGift && p.availability !== "sourced")
+      .sort((a, b) => rank(a) - rank(b));
+    html = html.replace("<!--RAIL-->", railLots.map((p, i) =>
+      card(p).replace(' data-reveal="up" data-product', ` style="--i:${i}"`).replace('class="card"', 'class="card card--rail"')).join("\n"));
+  }
+  /* Bag: "Why not take a look at" — Vault accessories only (cases,
+     binders, other accessories). Rendered into a <template>; the bag
+     script decides at checkout which ones to show. */
+  if (html.includes("<!--XSELL-->")) {
+    const xs = products.filter((p) => p.category === "accessories" && !p.freeGift && !p.frozen
+      && p.availability !== "sourced" && p.stock > 0);
+    html = html.replace("<!--XSELL-->", `<template id="xsell">${xs.map((p) => {
+      const shot = p.shots[0] || {};
+      const im = shot.thumb || shot.url || "";
+      return `<article class="xs-card" data-sku="${esc(p.sku)}" data-name="${esc(p.name)}" data-price="${p.pricePence}" data-image="${im}" data-url="/product/${p.slug}.html" data-stock="${p.stock}" data-weight="${p.weightGrams || 0}">
+  <a class="xs-card__plate" href="/product/${p.slug}.html"><img src="${im}" alt="${esc(shot.alt || p.name)}" width="480" height="640" loading="lazy" decoding="async"></a>
+  <div class="xs-card__body"><h3 class="xs-card__title">${esc(p.name)}</h3><span class="meta">${esc(p.type || "")}</span><span class="price">${gbp(p.pricePence)}</span>
+  <button class="btn btn--quiet xs-card__add" type="button" aria-pressed="false">Add to bag</button></div>
+</article>`;
+    }).join("")}</template>`);
+  }
   if (html.includes("<!--FEATURED-->")) {
     html = html.replace("<!--FEATURED-->", products.filter((p) => p.stock > 0).slice(0, 4).map(lot).join("\n"));
   }
