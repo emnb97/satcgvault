@@ -1985,3 +1985,12 @@ body.xs-open { overflow: hidden; }
    the plate, so the gap is invisible and the box ends up centred. */
 .card__plate img, .card--rail .card__plate img { transform-origin: 50% 50%; transform: translateY(6%) scale(1.04); }
 .card:hover .card__plate img { transform: translateY(6%) scale(1.1); }
+
+/* ---------- sticky nav fix ----------
+   overflow-x: hidden on BOTH html and body turns <body> into a scroll
+   container that never actually scrolls, so position: sticky (the nav
+   pill) stuck to the body instead of the window and scrolled away.
+   clip trims sideways overflow without creating a scroll container.
+   Browsers without clip keep the hidden line above, exactly as before. */
+html, body { overflow-x: clip; }
+body { overflow-y: visible; }
