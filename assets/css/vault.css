@@ -1994,3 +1994,20 @@ body.xs-open { overflow: hidden; }
    Browsers without clip keep the hidden line above, exactly as before. */
 html, body { overflow-x: clip; }
 body { overflow-y: visible; }
+
+/* ---------- Shop menu inside the floating nav pill (desktop) ----------
+   The panel used to hang from the right edge of the "Shop" button. With
+   Shop now near the middle of the pill, a 720px panel ran off the left of
+   the page. It now hangs from the pill itself, centred under it, so it
+   always sits inside the page margins at any desktop width. */
+@media (min-width: 901px) {
+  .masthead__in.wrap { position: relative; }
+  .masthead .nav__shop { position: static; }
+  .masthead .mega {
+    top: calc(100% + 10px); left: 0; right: 0; margin-inline: auto;
+    width: min(720px, calc(100% - 16px));
+    border-radius: 18px; overflow: hidden;
+  }
+  /* bridge the 10px gap plus the pill's padding so hover isn't lost */
+  .masthead .mega::before { top: -26px; height: 26px; }
+}
