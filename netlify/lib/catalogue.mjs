@@ -39,7 +39,7 @@ export async function catalogueNow() {
 
   const q = `*[_type == "product" && !hidden && availability != "hidden"]{ "sku": sku, name, pricePence, stock, frozen, weightGrams, freeGift, era,
     availability, "set": set, "type": type, language, condition, "slug": slug.current }`;
-  const url = `https://${process.env.SANITY_PROJECT_ID}.apicdn.sanity.io/v2024-01-01/data/query/${process.env.SANITY_DATASET || "production"}?query=${encodeURIComponent(q)}`;
+  const url = `https://${process.env.SANITY_PROJECT_ID}.api.sanity.io/v2024-01-01/data/query/${process.env.SANITY_DATASET || "production"}?query=${encodeURIComponent(q)}`;
 
   try {
     const res = await fetch(url);

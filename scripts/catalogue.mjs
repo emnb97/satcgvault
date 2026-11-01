@@ -37,7 +37,10 @@ export async function loadCatalogue() {
   }
 
   const dataset = process.env.SANITY_DATASET || "production";
-  const url = `https://${projectId}.apicdn.sanity.io/v2024-01-01/data/query/${dataset}?query=${encodeURIComponent(QUERY)}`;
+  /* api.sanity.io, not apicdn: a publish triggers this build straight away,
+     and the cached API CDN can still be serving the previous version for a
+     short while, so the deploy went out with the old photo or price. */
+  const url = `https://${projectId}.api.sanity.io/v2024-01-01/data/query/${dataset}?query=${encodeURIComponent(QUERY)}`;
 
   try {
     const res = await fetch(url, {
@@ -52,7 +55,7 @@ export async function loadCatalogue() {
     // Fetch arrival-ledger records too.
     let consignments = local.consignments || [];
     try {
-      const cUrl = `https://${projectId}.apicdn.sanity.io/v2024-01-01/data/query/${dataset}?query=${encodeURIComponent(CONSIGN_QUERY)}`;
+      const cUrl = `https://${projectId}.api.sanity.io/v2024-01-01/data/query/${dataset}?query=${encodeURIComponent(CONSIGN_QUERY)}`;
       const cRes = await fetch(cUrl, process.env.SANITY_READ_TOKEN ? { headers: { Authorization: `Bearer ${process.env.SANITY_READ_TOKEN}` } } : {});
       const cJson = await cRes.json();
       if (Array.isArray(cJson.result) && cJson.result.length) {
